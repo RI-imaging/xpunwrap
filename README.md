@@ -90,4 +90,4 @@ plt.tight_layout(w_pad=4.5)
 plt.show()
 ```
 
-![phase_unwrap_algos.png](docs/phase_unwrap_algos.png)
+![phase_unwrap_algos.png](examples/phase_unwrap_algos.png)
