@@ -1,2 +1,4 @@
 0.1.0
+- docs: create docs directory for sphinx website
+- tests: create test suite
 - feat: repo initialisation with base algorithms, simple example

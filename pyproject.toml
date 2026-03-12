@@ -17,7 +17,18 @@ cupy-cuda13x = [
 ]
 
 [dependency-groups]
-dev = [
-    "flake8>=7.3.0",
+tests = [
     "pytest>=9.0.2",
+]
+dev = [
+    {include-group="tests"},
+     "flake8>=7.3.0",
+]
+docs = [
+    "sphinx>=7.2",
+    "sphinx-rtd-theme>=2.0",
+]
+examples = [
+    "matplotlib>=3.10.8",
+    "qpretrieve>=0.6.0",
 ]
