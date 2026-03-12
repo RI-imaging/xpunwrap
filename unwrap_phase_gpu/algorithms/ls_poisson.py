@@ -8,19 +8,24 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray) -> xp.ndarray:
     Parameters
     ----------
     phase_wrapped : xp.ndarray
-        Wrapped phase, shape (N, H, W), values in [-pi, pi).
+        Wrapped phase, shape (N, H, W) or (H, W), values in (-pi, pi).
 
     Returns
     -------
     phase_unwrapped : xp.ndarray
-        Unwrapped phase, shape (N, H, W).
+        Unwrapped phase, same shape as input.
 
     References
     ----------
     .. [1] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
        Theory, Algorithms, and Software," Wiley, 1998.
     """
-    assert phase_wrapped.ndim == 3, "Input must be (N, H, W)"
+    input_2d = False
+    if phase_wrapped.ndim == 2:
+        input_2d = True
+        phase_wrapped = xp.expand_dims(phase_wrapped, axis=0)
+    elif phase_wrapped.ndim != 3:
+        raise ValueError("phase_wrapped must have shape (H, W) or (N, H, W).")
 
     N, H, W = phase_wrapped.shape
     dtype = phase_wrapped.dtype
@@ -55,5 +60,6 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray) -> xp.ndarray:
     # Inverse FFT
     phase_unwrapped = xp.fft.ifft2(phi_hat, axes=(1, 2)).real
 
+    if input_2d:
+        phase_unwrapped = phase_unwrapped[0]
     return phase_unwrapped
-

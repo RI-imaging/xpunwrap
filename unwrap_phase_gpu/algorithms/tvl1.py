@@ -12,7 +12,7 @@ def algo_tvl1(
     Parameters
     ----------
     phase_wrapped : xp.ndarray
-        Shape (..., H, W)
+        Shape (N, H, W) or (H, W)
     axis : int
         Stack axis
     kwargs :
@@ -28,6 +28,11 @@ def algo_tvl1(
        convex problems with applications to imaging," J. Math. Imaging Vis.,
        vol. 40, no. 1, pp. 120-145, 2011.
     """
+    if phase_wrapped.ndim == 2:
+        return _unwrap_2d_tvl1_gpu(phase_wrapped, **kwargs)
+    if phase_wrapped.ndim != 3:
+        raise ValueError("phase_wrapped must have shape (H, W) or (N, H, W).")
+
     phase_wrapped = xp.moveaxis(phase_wrapped, axis, 0)
 
     out = xp.empty_like(phase_wrapped, dtype=xp.float32)

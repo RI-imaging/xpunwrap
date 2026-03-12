@@ -12,7 +12,7 @@ def algo_ls_weighted(
     Parameters
     ----------
     phase_wrapped : xp.ndarray
-        Wrapped phase, shape (N, H, W).
+        Wrapped phase, shape (N, H, W) or (H, W).
     border_thresh : float
         Gradient magnitude threshold for border detection.
     n_iter : int
@@ -21,7 +21,7 @@ def algo_ls_weighted(
     Returns
     -------
     xp.ndarray
-        Unwrapped phase, shape (N, H, W).
+        Unwrapped phase, same shape as input.
 
     References
     ----------
@@ -31,6 +31,13 @@ def algo_ls_weighted(
     .. [2] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
        Theory, Algorithms, and Software," Wiley, 1998.
     """
+    input_2d = False
+    if phase_wrapped.ndim == 2:
+        input_2d = True
+        phase_wrapped = xp.expand_dims(phase_wrapped, axis=0)
+    elif phase_wrapped.ndim != 3:
+        raise ValueError("phase_wrapped must have shape (H, W) or (N, H, W).")
+
     gx = xp.diff(phase_wrapped, axis=2, append=phase_wrapped[:, :, -1:])
     gy = xp.diff(phase_wrapped, axis=1, append=phase_wrapped[:, -1:, :])
 
@@ -43,6 +50,8 @@ def algo_ls_weighted(
 
     phi = _weighted_poisson_solver(f, w, n_iter=n_iter)
 
+    if input_2d:
+        phi = phi[0]
     return phi
 
 
