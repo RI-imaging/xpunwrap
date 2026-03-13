@@ -17,12 +17,14 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "fancy_include",
+    "myst_parser",
 ]
 
 autosummary_generate = True
 autodoc_mock_imports = ["cupy"]
 
 templates_path = ["_templates"]
+source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 fancy_include_path = "../examples"
 
