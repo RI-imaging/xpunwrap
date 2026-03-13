@@ -1,29 +1,25 @@
 [project]
-name = "unwrap-phase-gpu"
+name = "unwrap_phase_gpu"
 version = "0.1.0"
 description = "Phase unwrapping algorithms which are CPU and GPU agnostic"
+readme = "README.md"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=2.2.6",
 ]
 
+[tool.setuptools]
+packages = ["unwrap_phase_gpu"]
+include-package-data = true
+
 [project.optional-dependencies]
 # cupy has several installation options, depending on your CUDA Toolkit version
-cupy-cuda12x = [
-    "cupy-cuda12x",
-]
-cupy-cuda13x = [
-    "cupy-cuda13x",
-]
+cupy-cuda12x = ["cupy-cuda12x"]
+cupy-cuda13x = ["cupy-cuda13x"]
 
 [dependency-groups]
-tests = [
-    "pytest>=9.0.2",
-]
-dev = [
-    {include-group="tests"},
-     "flake8>=7.3.0",
-]
+tests = ["pytest>=9.0.2"]
 docs = [
     "sphinx>=7.2",
     "sphinx-rtd-theme>=2.0",
@@ -32,4 +28,10 @@ docs = [
 examples = [
     "matplotlib>=3.10.8",
     "qpretrieve>=0.6.0",
+]
+dev = [
+    {include-group="tests"},
+    {include-group="docs"},
+    {include-group="examples"},
+     "flake8>=7.3.0",
 ]

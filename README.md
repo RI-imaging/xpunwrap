@@ -113,6 +113,12 @@ plt.show()
 
 ## Developers
 
+Install everything you need with (for example for cuda12x)
+```bash
+pip install -e .[cupy-cuda12x] --group dev
+```
+
+
 Run the unit tests with `pytest`
 ```bash
 pip install -r tests/requirements.txt
@@ -137,7 +143,7 @@ install `uv` and then run:
 For example, for the optional `cupy-cuda12x`
 
 ```bash
-uv sync --all-groups --extra cupy-cuda12x
+uv sync --group dev --extra cupy-cuda12x
 ```
 
 Which should install all dev dependencies.
