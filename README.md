@@ -55,39 +55,74 @@ There are several phase unwrapping algorithms to choose from:
   here as it is not a GPU-suitable algorithm.
 
 ```python
+"""
+Field retrieval (qpretrieve) and
+phase unwrapping (unwrap_phase_gpu) on GPU.
+"""
+
+from pathlib import Path
+
 import matplotlib.pyplot as plt
+import numpy as np
+import qpretrieve
 import unwrap_phase_gpu as upg
 
+# Force GPU backend for both libraries.
 upg.set_ndarray_backend("cupy")
+qpretrieve.set_ndarray_backend("cupy")
 xp = upg.get_ndarray_backend()
 
-# some fake wrapped phase data
-rng = xp.random.default_rng(7)
-phase_stack = rng.uniform(
-    -xp.pi, xp.pi, size=(5, 64, 64)).astype(xp.float32)
+edata = np.load("./data/hologram_cell.npz")
+holo = qpretrieve.OffAxisHologram(data=edata["data"])
+bg = qpretrieve.OffAxisHologram(data=edata["bg_data"])
 
-algos_available = upg.algos_available()
+holo.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
+bg.process_like(holo)
+phase_wrapped = xp.asarray(holo.phase - bg.phase).astype(xp.float32)
+
+# Unwrap the phase with all available algorithms
 outputs = {}
-for algo_name, algo in algos_available.items():
-    outputs[algo_name] = algo(phase_stack)
+for algo_name, algo in upg.algos_available().items():
+    outputs[algo_name] = algo(phase_wrapped)
 
+# plot the wrapped and unwrapped phases
+plt.style.use("dark_background")
 fig, axes = plt.subplots(2, 3, figsize=(8, 6))
-fig.suptitle("Unwrap outputs on synthetic phase data")
-axes = axes.flatten(order='F')
+fig.suptitle("Field Retrieval + Phase Unwrapping (GPU)", fontsize=18)
+axes = axes.flatten(order="F")
 
-axes[0].imshow(phase_stack[0].get())
+axes[0].imshow(phase_wrapped.get()[0])
 axes[0].set_title("Wrapped Phase")
-axes[0].set_axis_off()
-axes[1].set_axis_off()
-for i, (algo_name, arr) in enumerate(outputs.items()):
-    ax_num = i + 2
-    arr_cpu = arr.get()[0]
-    axes[ax_num].imshow(arr_cpu)
-    axes[ax_num].set_title(f"Phase Unwrapped with\n'{algo_name}'")
-    axes[ax_num].set_axis_off()
+
+for i, (algo_name, arr) in enumerate(outputs.items(), start=2):
+    ax = axes[i]
+    ax.imshow(arr.get()[0])
+    ax.set_title(f"Unwrapped\n{algo_name}")
+
+for ax in axes:
+    ax.set_axis_off()
 
 plt.tight_layout(w_pad=4.5)
+# plt.savefig("gpu_field_retr_phase_unwrapping.png")
 plt.show()
 ```
 
-![phase_unwrap_algos.png](examples/phase_unwrap_algos.png)
+![gpu_field_retr_phase_unwrapping.png](examples/gpu_field_retr_phase_unwrapping.png)
+
+## Developers
+
+Run the unit tests with `pytest`
+```bash
+pip install -r tests/requirements.txt
+pytest tests
+```
+
+Build docs with `sphinx`
+
+```bash
+pip install -r docs/requirements.txt
+cd docs
+sphinx-build . _build
+```
+
+Check the docs locally by opening the docs/_build/index.html file in your browser.
