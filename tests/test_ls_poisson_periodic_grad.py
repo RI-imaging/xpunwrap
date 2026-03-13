@@ -23,3 +23,9 @@ def test_ls_poisson_periodic_grad_different_shape():
         -xp.pi, xp.pi, size=(2, 24, 20)).astype(xp.float32)
     out = algo_ls_poisson_periodic_grad(phase_stack)
     assert_shape_dtype(out, phase_stack.shape)
+
+
+def test_ls_poisson_stack_real_data(cell_phase_data):
+    phase_stack = cell_phase_data
+    out = algo_ls_poisson_periodic_grad(phase_stack)
+    assert_shape_dtype(out, phase_stack.shape)

@@ -1,6 +1,11 @@
+import pathlib
 import pytest
+import qpretrieve
+from qpretrieve.data_array_layout import convert_data_to_3d_array_layout
 
 import unwrap_phase_gpu as upg
+
+data_path = pathlib.Path(__file__).parent / "data"
 
 
 @pytest.fixture(params=["numpy", "cupy"])
@@ -29,3 +34,20 @@ def fake_phase_data(backend):
         "stack": phase_stack,
         "single": phase_single,
     }
+
+
+@pytest.fixture
+def cell_phase_data(backend):
+    xp = upg.get_ndarray_backend()
+    qpretrieve.set_ndarray_backend(backend)
+
+    edata = xp.load(data_path / "hologram_cell.npz")
+    holo = qpretrieve.OffAxisHologram(data=edata["data"])
+    bg = qpretrieve.OffAxisHologram(data=edata["bg_data"])
+    holo.run_pipeline(filter_name="disk", filter_size=1 / 2,
+                      scale_to_filter=True)
+    bg.process_like(holo)
+    phase_wrp = xp.asarray(holo.phase - bg.phase).astype(xp.float32)
+    # make it a stack
+    phase_wrp = xp.repeat(phase_wrp, repeats=10, axis=0)
+    return phase_wrp

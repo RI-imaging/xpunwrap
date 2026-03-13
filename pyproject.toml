@@ -19,7 +19,10 @@ cupy-cuda12x = ["cupy-cuda12x"]
 cupy-cuda13x = ["cupy-cuda13x"]
 
 [dependency-groups]
-tests = ["pytest>=9.0.2"]
+tests = [
+    "pytest>=9.0.2",
+    "qpretrieve>=0.6.0"
+]
 docs = [
     "sphinx>=7.2",
     "sphinx-rtd-theme>=2.0",
@@ -30,8 +33,8 @@ examples = [
     "qpretrieve>=0.6.0",
 ]
 dev = [
-    {include-group="tests"},
-    {include-group="docs"},
-    {include-group="examples"},
-     "flake8>=7.3.0",
+    { include-group = "tests" },
+    { include-group = "docs" },
+    { include-group = "examples" },
+    "flake8>=7.3.0",
 ]

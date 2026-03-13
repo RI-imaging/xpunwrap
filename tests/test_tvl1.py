@@ -24,3 +24,9 @@ def test_tvl1_2d(fake_phase_data):
         sigma=0.2,
     )
     assert_shape_dtype(out, phase_single.shape)
+
+
+def test_ls_poisson_stack_real_data(cell_phase_data):
+    phase_stack = cell_phase_data
+    out = algo_tvl1(phase_stack)
+    assert_shape_dtype(out, phase_stack.shape)
