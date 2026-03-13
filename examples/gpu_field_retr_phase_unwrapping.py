@@ -46,5 +46,5 @@ for ax in axes:
     ax.set_axis_off()
 
 plt.tight_layout(w_pad=4.5)
-plt.savefig("gpu_field_retr_phase_unwrapping.png")
-# plt.show()
+# plt.savefig("gpu_field_retr_phase_unwrapping.png")
+plt.show()

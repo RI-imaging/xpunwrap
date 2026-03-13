@@ -9,3 +9,4 @@ Phase unwrapping algorithms with CPU and GPU backends.
 
    api
    algorithms/index
+   examples
