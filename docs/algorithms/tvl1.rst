@@ -1,11 +1,15 @@
 TV-L1 Primal-Dual (tvl1)
 ========================
 
-This algorithm minimizes a TV-L1 objective using a primal-dual method, applied
-slice-by-slice for 3D stacks.
+This algorithm formulates unwrapping as an optimization problem that balances
+data fidelity (matching wrapped gradients) with a total-variation prior that
+promotes piecewise-smooth phase. It solves the resulting TV-L1 objective using
+a fast first-order primal-dual method, applied independently to each slice in
+a stack. The approach is robust to noise and preserves sharp features better
+than simple least-squares methods. [1]
 
-Mathematics (line by line)
---------------------------
+Derivation
+----------
 
 1. **Input**: wrapped phase :math:`\phi_w` in :math:`(-\pi,\pi]`.
 2. **Wrapped gradients** of the data term:
@@ -40,3 +44,9 @@ Mathematics (line by line)
 
 8. **Repeat** for a fixed number of iterations. For 3D inputs, each slice is
    processed independently and reassembled into a stack.
+
+References
+----------
+.. [1] A. Chambolle and T. Pock, "A first-order primal-dual algorithm for
+   convex problems with applications to imaging," J. Math. Imaging Vis.,
+   vol. 40, no. 1, pp. 120-145, 2011.

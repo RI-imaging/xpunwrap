@@ -1,11 +1,15 @@
 Least-Squares with Periodic Gradients (ls_poisson_periodic_grad)
 ================================================================
 
-This variant enforces periodic boundary conditions on the wrapped gradients
-before solving the Poisson equation.
+This variant follows the same least-squares Poisson formulation as the
+standard method, but explicitly enforces periodic boundary conditions on the
+wrapped gradients before solving. That makes the formulation consistent with
+periodic data or FFT-based solvers that assume wrap-around behavior at the
+boundaries. The result is still a global least-squares solution, but one whose
+gradients are periodic across the image edges. [1]
 
-Mathematics (line by line)
---------------------------
+Derivation
+----------
 
 1. **Input**: wrapped phase :math:`\phi_w` in :math:`(-\pi,\pi]`.
 2. **Wrapped forward gradients**:
@@ -38,3 +42,8 @@ Mathematics (line by line)
 
 7. **Inverse FFT** returns the real-space unwrapped phase. If the input was
    2D, the leading singleton dimension is removed.
+
+References
+----------
+.. [1] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
+   Theory, Algorithms, and Software," Wiley, 1998.

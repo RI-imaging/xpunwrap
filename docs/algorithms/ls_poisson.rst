@@ -1,11 +1,16 @@
 Least-Squares Poisson (ls_poisson)
 ==================================
 
-This algorithm unwraps a 2D phase image (or a stack of images) by solving a
-Poisson equation derived from wrapped gradients.
+This algorithm turns phase unwrapping into a least-squares problem: it looks
+for the smooth phase field whose gradients best match the wrapped gradients
+measured from the data. In practice, it computes wrapped forward differences,
+forms their divergence, and solves a Poisson equation to recover a globally
+consistent phase (up to an arbitrary constant offset). This is the classic
+FFT-based least-squares approach and is a good default when the wrapped phase
+is reasonably clean and you want a fast, stable solution. [1]
 
-Mathematics (line by line)
---------------------------
+Derivation
+----------
 
 1. **Input**: a wrapped phase :math:`\phi_w` with values in :math:`[-\pi,\pi)`.
 2. **Forward differences** (wrapped gradients):
@@ -40,3 +45,8 @@ Mathematics (line by line)
 
 7. **Inverse FFT** yields :math:`\phi` in real space. If the input was 2D,
    the leading singleton dimension is removed.
+
+References
+----------
+.. [1] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
+   Theory, Algorithms, and Software," Wiley, 1998.
