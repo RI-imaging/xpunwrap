@@ -121,14 +121,14 @@ pip install -e .[cupy-cuda12x] --group dev
 
 Run the unit tests with `pytest`
 ```bash
-pip install -r tests/requirements.txt
+pip install --group tests
 pytest tests
 ```
 
 Build docs with `sphinx`
 
 ```bash
-pip install -r docs/requirements.txt
+pip install --group docs
 cd docs
 sphinx-build . _build
 ```

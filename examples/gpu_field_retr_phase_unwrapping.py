@@ -3,8 +3,6 @@ Field retrieval (qpretrieve) and
 phase unwrapping (unwrap_phase_gpu) on GPU.
 """
 
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
 import qpretrieve
