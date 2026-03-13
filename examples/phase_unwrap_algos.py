@@ -23,14 +23,13 @@ axes = axes.flatten(order='F')
 
 axes[0].imshow(phase_stack[0].get())
 axes[0].set_title("Wrapped Phase")
-axes[0].set_axis_off()
-axes[1].set_axis_off()
-for i, (algo_name, arr) in enumerate(outputs.items()):
-    ax_num = i + 2
+for i, (algo_name, arr) in enumerate(outputs.items(), start=2):
     arr_cpu = arr.get()[0]
-    axes[ax_num].imshow(arr_cpu)
-    axes[ax_num].set_title(f"Phase Unwrapped with\n'{algo_name}'")
-    axes[ax_num].set_axis_off()
+    axes[i].imshow(arr_cpu)
+    axes[i].set_title(f"Unwrapped\n'{algo_name}'")
+
+for ax in axes:
+    ax.set_axis_off()
 
 plt.tight_layout(w_pad=4.5)
 # plt.show()
