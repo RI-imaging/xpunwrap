@@ -13,16 +13,17 @@ If you don't have a GPU, don't worry, all the code works on the CPU
 
 ## Installation
 
+```bash
+
     # if you have the CUDA Toolkit version 12x use:
     pip install unwrap_phase_gpu[cupy-cuda12x]
 
     # if you have the CUDA Toolkit version 13x use:
     pip install unwrap_phase_gpu[cupy-cuda13x]
 
-    # to install and just use on the CPU, just don't use any optional 
-    dependencies:
+    # to install and just use on the CPU, just don't use any optional dependencies:
     pip install unwrap_phase_gpu
-
+```
 
 ## Compatible Phase Retrieval and Numerical Refocusing GPU packages
 
@@ -30,7 +31,7 @@ In the same group on GitHub, we have two other packages that work seamlessy
 with `unwrap_phase_gpu`.
 - Phase Retrieval that works on CPU and GPU: 
   [qpretrieve](https://github.com/RI-imaging/qpretrieve)
-- Numerical Refocussing that works on CPU and GPU: 
+- Numerical Refocussing that works on CPU ([and soon GPU](https://github.com/RI-imaging/nrefocus/issues/23)): 
   [nrefocus](https://github.com/RI-imaging/nrefocus)
 - If you are looking for a file format that can also work with the GPU, try 
   out [zarr-python](https://zarr.readthedocs.io/en/stable/user-guide/gpu/) 
@@ -109,6 +110,7 @@ plt.show()
 
 ![gpu_field_retr_phase_unwrapping.png](examples/gpu_field_retr_phase_unwrapping.png)
 
+
 ## Developers
 
 Run the unit tests with `pytest`
@@ -125,4 +127,17 @@ cd docs
 sphinx-build . _build
 ```
 
-Check the docs locally by opening the docs/_build/index.html file in your browser.
+Check the docs locally by opening `docs/_build/index.html` file in your browser.
+
+### Package management with `uv`
+
+If you wish to use `uv` to handle package management, then you need to first
+install `uv` and then run:
+
+For example, for the optional `cupy-cuda12x`
+
+```bash
+uv sync --all-groups --extra cupy-cuda12x
+```
+
+Which should install all dev dependencies.
