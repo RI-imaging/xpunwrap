@@ -22,6 +22,11 @@ zarr.config.enable_gpu()
 edata = xp.load("./data/hologram_cell.npz")
 
 # load to gpu
+# caveat: Zarr loads the data into GPU, but encoding and decoding happens
+# on the CPU. It is a work in progress.
+# One can use `kvikio` to directly do GPU loading, but
+# `pip install kvikio-cu12` only works on linux, or use conda/mamba to install
+# on Windows, I assume. See https://docs.rapids.ai/api/kvikio/stable/zarr/
 store_holo = zarr.storage.MemoryStore()
 store_bg = zarr.storage.MemoryStore()
 data_holo = zarr.create_array(store=store_holo, data=edata["data"])
@@ -38,7 +43,7 @@ phase_wrapped = xp.asarray(holo.phase - bg.phase).astype(xp.float32)
 phase_unwrapped = upg.algo_ls_poisson_periodic_grad(phase_wrapped)
 
 # write from GPU to Zarr file
-path = "unwrapped_cell_phase.zip"
+path = "temp_unwrapped_cell_phase.zip"
 with zarr.storage.ZipStore(path, mode='w') as disk:
     data_phase = zarr.create_array(store=disk, data=phase_unwrapped)
 

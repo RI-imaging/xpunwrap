@@ -220,3 +220,4 @@ __marimo__/
 
 # Sphinx documentation
 docs/_build/
+temp_*.zip
