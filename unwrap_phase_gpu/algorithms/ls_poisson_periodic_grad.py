@@ -8,7 +8,7 @@ def algo_ls_poisson_periodic_grad(phase_wrapped: xp.ndarray) -> xp.ndarray:
     Parameters
     ----------
     phase_wrapped : xp.ndarray
-        Wrapped phase, shape (H, W) or (N, H, W), values in (-pi, pi].
+        Wrapped phase, shape (H, W) or (N, H, W), values in [-pi, pi).
 
     Returns
     -------
@@ -47,7 +47,7 @@ def algo_ls_poisson_periodic_grad(phase_wrapped: xp.ndarray) -> xp.ndarray:
 
 def wrap_phase(x):
     """
-    Wrap phase to (-pi, pi].
+    Wrap phase to [-pi, pi).
 
     Parameters
     ----------
@@ -57,7 +57,7 @@ def wrap_phase(x):
     Returns
     -------
     xp.ndarray
-        Wrapped values in (-pi, pi].
+        Wrapped values in [-pi, pi).
     """
     return (x + xp.pi) % (2 * xp.pi) - xp.pi
 

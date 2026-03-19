@@ -8,7 +8,7 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray) -> xp.ndarray:
     Parameters
     ----------
     phase_wrapped : xp.ndarray
-        Wrapped phase, shape (N, H, W) or (H, W), values in (-pi, pi).
+        Wrapped phase, shape (N, H, W) or (H, W), values in [-pi, pi).
 
     Returns
     -------

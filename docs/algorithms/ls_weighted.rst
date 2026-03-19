@@ -11,7 +11,7 @@ jumps or noisy regions, at the cost of a slower iterative solve. [1] [2]
 Derivation
 ----------
 
-1. **Input**: wrapped phase :math:`\phi_w` in :math:`(-\pi,\pi]`.
+1. **Input**: wrapped phase :math:`\phi_w` in :math:`[-\pi,\pi)`.
 2. **Wrapped gradients**:
 
    .. math::
@@ -49,6 +49,8 @@ Derivation
 8. **Output**:
    After a fixed number of iterations, :math:`\phi` is returned. If the input
    was 2D, the leading singleton dimension is removed.
+
+.. _ls_weighted_refs:
 
 References
 ----------

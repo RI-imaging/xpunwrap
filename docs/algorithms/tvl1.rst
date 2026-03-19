@@ -11,7 +11,7 @@ than simple least-squares methods. [1]
 Derivation
 ----------
 
-1. **Input**: wrapped phase :math:`\phi_w` in :math:`(-\pi,\pi]`.
+1. **Input**: wrapped phase :math:`\phi_w` in :math:`[-\pi,\pi)`.
 2. **Wrapped gradients** of the data term:
 
    .. math::
@@ -44,6 +44,8 @@ Derivation
 
 8. **Repeat** for a fixed number of iterations. For 3D inputs, each slice is
    processed independently and reassembled into a stack.
+
+.. _tvl1_refs:
 
 References
 ----------

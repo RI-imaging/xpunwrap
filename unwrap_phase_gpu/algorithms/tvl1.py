@@ -55,7 +55,7 @@ def _unwrap_2d_tvl1_gpu(
     Parameters
     ----------
     wrapped : xp.ndarray
-        Wrapped phase in (-pi, pi]
+        Wrapped phase in [-pi, pi)
     n_iters : int
         Number of primal-dual iterations
     tau, sigma : float
@@ -113,7 +113,7 @@ def _unwrap_2d_tvl1_gpu(
 
 def _wrap_phase(x):
     """
-    Wrap to (-pi, pi].
+    Wrap to [-pi, pi).
 
     Parameters
     ----------
@@ -123,7 +123,7 @@ def _wrap_phase(x):
     Returns
     -------
     xp.ndarray
-        Wrapped values in (-pi, pi].
+        Wrapped values in [-pi, pi).
     """
     return (x + xp.pi) % (xp.pi * 2) - xp.pi
 

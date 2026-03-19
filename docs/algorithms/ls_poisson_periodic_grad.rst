@@ -11,7 +11,7 @@ gradients are periodic across the image edges. [1]
 Derivation
 ----------
 
-1. **Input**: wrapped phase :math:`\phi_w` in :math:`(-\pi,\pi]`.
+1. **Input**: wrapped phase :math:`\phi_w` in :math:`[-\pi,\pi)`.
 2. **Wrapped forward gradients**:
 
    .. math::
@@ -42,6 +42,8 @@ Derivation
 
 7. **Inverse FFT** returns the real-space unwrapped phase. If the input was
    2D, the leading singleton dimension is removed.
+
+.. _ls_poisson_periodic_grad_refs:
 
 References
 ----------

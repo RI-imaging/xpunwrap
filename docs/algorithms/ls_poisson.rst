@@ -46,6 +46,8 @@ Derivation
 7. **Inverse FFT** yields :math:`\phi` in real space. If the input was 2D,
    the leading singleton dimension is removed.
 
+.. _ls_poisson_refs:
+
 References
 ----------
 .. [1] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
