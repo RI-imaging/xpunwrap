@@ -147,3 +147,10 @@ uv sync --group dev --extra cupy-cuda12x
 ```
 
 Which should install all dev dependencies.
+
+
+## Other phase unwrapping packages
+
+Here are several phase unwrapping packages that exist in Python:
+- https://github.com/blakedewey/phase_unwrap (CPU)
+- Scikit-image (CPU)
