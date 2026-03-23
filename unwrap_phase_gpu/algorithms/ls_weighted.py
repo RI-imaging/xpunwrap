@@ -1,3 +1,4 @@
+from .._dtype_utils import real_pi
 from .._ndarray_backend import xp
 
 
@@ -38,11 +39,15 @@ def algo_ls_weighted(
     elif phase_wrapped.ndim != 3:
         raise ValueError("phase_wrapped must have shape (H, W) or (N, H, W).")
 
+    dtype = phase_wrapped.dtype
+    pi = real_pi(xp, dtype)
+    two_pi = dtype.type(2) * pi
+
     gx = xp.diff(phase_wrapped, axis=2, append=phase_wrapped[:, :, -1:])
     gy = xp.diff(phase_wrapped, axis=1, append=phase_wrapped[:, -1:, :])
 
-    gx = (gx + xp.pi) % (2 * xp.pi) - xp.pi
-    gy = (gy + xp.pi) % (2 * xp.pi) - xp.pi
+    gx = (gx + pi) % two_pi - pi
+    gy = (gy + pi) % two_pi - pi
 
     w = _phase_border_weights(phase_wrapped, thresh=border_thresh)
 
@@ -89,7 +94,7 @@ def _weighted_poisson_solver(
         w_ym = xp.roll(w, 1, axis=1)
 
         denom = w_xp + w_xm + w_yp + w_ym
-        denom = xp.where(denom == 0, 1.0, denom)
+        denom = xp.where(denom == 0, denom.dtype.type(1), denom)
 
         phi = (
                       w_xp * phi_xp +
@@ -143,11 +148,15 @@ def _phase_border_weights(wrapped, thresh=1.5):
     xp.ndarray
         Binary weights, shape (N, H, W).
     """
+    dtype = wrapped.dtype
+    pi = real_pi(xp, dtype)
+    two_pi = dtype.type(2) * pi
+
     gx = xp.diff(wrapped, axis=2, append=wrapped[:, :, -1:])
     gy = xp.diff(wrapped, axis=1, append=wrapped[:, -1:, :])
 
-    gx = (gx + xp.pi) % (2 * xp.pi) - xp.pi
-    gy = (gy + xp.pi) % (2 * xp.pi) - xp.pi
+    gx = (gx + pi) % two_pi - pi
+    gy = (gy + pi) % two_pi - pi
 
     grad_mag = xp.sqrt(gx ** 2 + gy ** 2)
 

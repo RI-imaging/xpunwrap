@@ -1,3 +1,4 @@
+from .._dtype_utils import real_pi
 from .._ndarray_backend import xp
 
 
@@ -35,7 +36,7 @@ def algo_tvl1(
 
     phase_wrapped = xp.moveaxis(phase_wrapped, axis, 0)
 
-    out = xp.empty_like(phase_wrapped, dtype=xp.float32)
+    out = xp.empty_like(phase_wrapped, dtype=phase_wrapped.dtype)
 
     for i in range(phase_wrapped.shape[0]):
         out[i] = _unwrap_2d_tvl1_gpu(phase_wrapped[i], **kwargs)
@@ -73,7 +74,9 @@ def _unwrap_2d_tvl1_gpu(
        vol. 40, no. 1, pp. 120-145, 2011.
     """
 
-    wrapped = wrapped.astype(xp.float32)
+    dtype = wrapped.dtype
+    tau = dtype.type(tau)
+    sigma = dtype.type(sigma)
 
     # Wrapped gradients (data term)
     gx_w, gy_w = _grad_forward(wrapped)
@@ -96,7 +99,7 @@ def _unwrap_2d_tvl1_gpu(
         py += sigma * (gy - gy_w)
 
         # L1 proximal (projection onto |p| <= 1)
-        norm = xp.maximum(1.0, xp.sqrt(px ** 2 + py ** 2))
+        norm = xp.maximum(dtype.type(1), xp.sqrt(px ** 2 + py ** 2))
         px /= norm
         py /= norm
 
@@ -125,7 +128,10 @@ def _wrap_phase(x):
     xp.ndarray
         Wrapped values in [-pi, pi).
     """
-    return (x + xp.pi) % (xp.pi * 2) - xp.pi
+    dtype = x.dtype
+    pi = real_pi(xp, dtype)
+    two_pi = dtype.type(2) * pi
+    return (x + pi) % two_pi - pi
 
 
 def _grad_forward(u):

@@ -1,3 +1,4 @@
+from .._dtype_utils import complex_dtype_for_real, real_pi
 from .._ndarray_backend import xp
 
 
@@ -59,7 +60,10 @@ def wrap_phase(x):
     xp.ndarray
         Wrapped values in [-pi, pi).
     """
-    return (x + xp.pi) % (2 * xp.pi) - xp.pi
+    dtype = x.dtype
+    pi = real_pi(xp, dtype)
+    two_pi = dtype.type(2) * pi
+    return (x + pi) % two_pi - pi
 
 
 def wrapped_gradients_stack(phi):
@@ -148,17 +152,23 @@ def poisson_solve_fft_stack(rhs):
         Solution, shape (N, H, W).
     """
     N, H, W = rhs.shape
+    dtype = rhs.dtype
+    pi = real_pi(xp, dtype)
+    two = dtype.type(2)
 
-    ky = xp.fft.fftfreq(H).reshape(1, H, 1)
-    kx = xp.fft.fftfreq(W).reshape(1, 1, W)
+    ky = xp.fft.fftfreq(H).astype(dtype, copy=False).reshape(1, H, 1)
+    kx = xp.fft.fftfreq(W).astype(dtype, copy=False).reshape(1, 1, W)
 
-    denom = (2 - 2 * xp.cos(2 * xp.pi * kx)) + \
-            (2 - 2 * xp.cos(2 * xp.pi * ky))
+    denom = (two - two * xp.cos(two * pi * kx)) + \
+            (two - two * xp.cos(two * pi * ky))
 
-    denom[:, 0, 0] = 1.0
+    denom[:, 0, 0] = dtype.type(1)
 
-    rhs_hat = xp.fft.fft2(rhs, axes=(-2, -1))
+    complex_dtype = complex_dtype_for_real(xp, dtype)
+    complex_dt = xp.dtype(complex_dtype)
+    rhs_hat = xp.fft.fft2(rhs.astype(complex_dtype, copy=False), axes=(-2, -1))
     phi_hat = rhs_hat / denom
-    phi_hat[:, 0, 0] = 0.0
+    phi_hat[:, 0, 0] = complex_dt.type(0)
 
-    return xp.real(xp.fft.ifft2(phi_hat, axes=(-2, -1)))
+    out = xp.real(xp.fft.ifft2(phi_hat, axes=(-2, -1)))
+    return out.astype(dtype, copy=False)

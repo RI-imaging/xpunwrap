@@ -1,3 +1,4 @@
+from .._dtype_utils import complex_dtype_for_real, real_pi
 from .._ndarray_backend import xp
 
 
@@ -29,15 +30,16 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray) -> xp.ndarray:
 
     N, H, W = phase_wrapped.shape
     dtype = phase_wrapped.dtype
+    pi = real_pi(xp, dtype)
+    two_pi = dtype.type(2) * pi
 
     # Wrapped gradients (forward differences)
     gx = xp.diff(phase_wrapped, axis=2, append=phase_wrapped[:, :, -1:])
     gy = xp.diff(phase_wrapped, axis=1, append=phase_wrapped[:, -1:, :])
 
     # Wrap gradients to [-pi, pi)
-    two_pi = dtype.type(2 * xp.pi)
-    gx = (gx + xp.pi) % two_pi - xp.pi
-    gy = (gy + xp.pi) % two_pi - xp.pi
+    gx = (gx + pi) % two_pi - pi
+    gy = (gy + pi) % two_pi - pi
 
     # Divergence of wrapped gradients
     div_x = xp.diff(gx, axis=2, prepend=gx[:, :, :1])
@@ -45,20 +47,27 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray) -> xp.ndarray:
     div = div_x + div_y
 
     # Fourier domain Poisson solve (batched)
-    ky = xp.fft.fftfreq(H).reshape(1, H, 1)
-    kx = xp.fft.fftfreq(W).reshape(1, 1, W)
+    ky = xp.fft.fftfreq(H).astype(dtype, copy=False).reshape(1, H, 1)
+    kx = xp.fft.fftfreq(W).astype(dtype, copy=False).reshape(1, 1, W)
 
     # Laplacian eigenvalues
-    denom = (2 * xp.pi * 1j * kx) ** 2 + (2 * xp.pi * 1j * ky) ** 2
-    denom[:, 0, 0] = 1.0  # avoid division by zero
+    complex_dtype = complex_dtype_for_real(xp, dtype)
+    complex_dt = xp.dtype(complex_dtype)
+    complex_one = xp.asarray(1j, dtype=complex_dt)
+    two_pi_c = xp.asarray(two_pi, dtype=complex_dt)
+    kx_c = kx.astype(complex_dtype, copy=False)
+    ky_c = ky.astype(complex_dtype, copy=False)
+    denom = (two_pi_c * complex_one * kx_c) ** 2 + (two_pi_c * complex_one * ky_c) ** 2
+    denom[:, 0, 0] = complex_dt.type(1)  # avoid division by zero
 
     # FFT over spatial axes only
-    div_hat = xp.fft.fft2(div, axes=(1, 2))
+    div_hat = xp.fft.fft2(div.astype(complex_dtype, copy=False), axes=(1, 2))
     phi_hat = div_hat / denom
-    phi_hat[:, 0, 0] = 0.0  # enforce zero-mean solution
+    phi_hat[:, 0, 0] = complex_dt.type(0)  # enforce zero-mean solution
 
     # Inverse FFT
     phase_unwrapped = xp.fft.ifft2(phi_hat, axes=(1, 2)).real
+    phase_unwrapped = phase_unwrapped.astype(dtype, copy=False)
 
     if input_2d:
         phase_unwrapped = phase_unwrapped[0]
