@@ -16,23 +16,23 @@ Overview
      - GPU friendly
      - Handles discontinuity
      - References
-   * - LS Poisson
+   * - LS Poisson (:func:`unwrap_phase_gpu.algorithms.algo_ls_poisson`)
      - very fast
      - excellent
      - poor
      - :ref:`Ghiglia & Pritt (1998) <ls_poisson_refs>`
    * - | LS Poisson
-       | (Periodic Grad)
+       | (Periodic Grad) (:func:`unwrap_phase_gpu.algorithms.algo_ls_poisson_periodic_grad`)
      - very fast
      - excellent
      - poor
      - :ref:`Ghiglia & Pritt (1998) <ls_poisson_periodic_grad_refs>`
-   * - Weighted LS
+   * - Weighted LS (:func:`unwrap_phase_gpu.algorithms.algo_ls_weighted`)
      - medium
      - good
      - moderate
      - :ref:`D. C. Ghiglia & L. A. Romero (1994) <ls_weighted_refs>`, :ref:`Ghiglia & Pritt (1998) <ls_weighted_refs>`
-   * - TV-L1
+   * - TV-L1 (:func:`unwrap_phase_gpu.algorithms.algo_tvl1`)
      - slow
      - good
      - excellent

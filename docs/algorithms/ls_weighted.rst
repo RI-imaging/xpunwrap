@@ -1,5 +1,5 @@
-Weighted Least-Squares (ls_weighted)
-====================================
+Weighted Least-Squares (algo_ls_weighted)
+=========================================
 
 This method extends the least-squares Poisson approach by down-weighting
 locations that are likely to contain phase discontinuities. It detects large
@@ -7,6 +7,8 @@ wrapped gradients, treats them as unreliable, and assigns smaller weights so
 they contribute less to the solution. The resulting weighted Poisson solve
 produces a smoother, more robust unwrapped phase in the presence of sharp
 jumps or noisy regions, at the cost of a slower iterative solve. [1] [2]
+
+API: :func:`unwrap_phase_gpu.algorithms.algo_ls_weighted`
 
 Derivation
 ----------

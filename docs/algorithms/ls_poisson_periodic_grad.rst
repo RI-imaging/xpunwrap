@@ -1,5 +1,5 @@
-Least-Squares with Periodic Gradients (ls_poisson_periodic_grad)
-================================================================
+Least-Squares with Periodic Gradients (algo_ls_poisson_periodic_grad)
+=====================================================================
 
 This variant follows the same least-squares Poisson formulation as the
 standard method, but explicitly enforces periodic boundary conditions on the
@@ -7,6 +7,8 @@ wrapped gradients before solving. That makes the formulation consistent with
 periodic data or FFT-based solvers that assume wrap-around behavior at the
 boundaries. The result is still a global least-squares solution, but one whose
 gradients are periodic across the image edges. [1]
+
+API: :func:`unwrap_phase_gpu.algorithms.algo_ls_poisson_periodic_grad`
 
 Derivation
 ----------

@@ -1,5 +1,5 @@
-Least-Squares Poisson (ls_poisson)
-==================================
+Least-Squares Poisson (algo_ls_poisson)
+=======================================
 
 This algorithm turns phase unwrapping into a least-squares problem: it looks
 for the smooth phase field whose gradients best match the wrapped gradients
@@ -8,6 +8,8 @@ forms their divergence, and solves a Poisson equation to recover a globally
 consistent phase (up to an arbitrary constant offset). This is the classic
 FFT-based least-squares approach and is a good default when the wrapped phase
 is reasonably clean and you want a fast, stable solution. [1]
+
+API: :func:`unwrap_phase_gpu.algorithms.algo_ls_poisson`
 
 Derivation
 ----------

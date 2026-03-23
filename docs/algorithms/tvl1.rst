@@ -1,5 +1,5 @@
-TV-L1 Primal-Dual (tvl1)
-========================
+TV-L1 Primal-Dual (algo_tvl1)
+=============================
 
 This algorithm formulates unwrapping as an optimization problem that balances
 data fidelity (matching wrapped gradients) with a total-variation prior that
@@ -7,6 +7,8 @@ promotes piecewise-smooth phase. It solves the resulting TV-L1 objective using
 a fast first-order primal-dual method, applied independently to each slice in
 a stack. The approach is robust to noise and preserves sharp features better
 than simple least-squares methods. [1]
+
+API: :func:`unwrap_phase_gpu.algorithms.algo_tvl1`
 
 Derivation
 ----------
