@@ -9,8 +9,8 @@ import qpretrieve
 import unwrap_phase_gpu as upg
 
 # Force GPU backend for both libraries.
-upg.set_ndarray_backend("cupy")
 qpretrieve.set_ndarray_backend("cupy")
+upg.set_ndarray_backend("cupy")
 xp = upg.get_ndarray_backend()
 
 edata = np.load("./data/hologram_cell.npz")
