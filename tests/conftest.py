@@ -8,7 +8,7 @@ import unwrap_phase_gpu as upg
 data_path = pathlib.Path(__file__).parent / "data"
 
 
-@pytest.fixture(params=["numpy", "cupy"])
+@pytest.fixture(params=["cupy", "numpy"])
 def backend(request):
     backend_name = request.param
     if backend_name == "cupy":
