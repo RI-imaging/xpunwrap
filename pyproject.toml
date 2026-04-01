@@ -21,7 +21,8 @@ cupy-cuda13x = ["cupy-cuda13x"]
 [dependency-groups]
 tests = [
     "pytest>=9.0.2",
-    "qpretrieve>=0.6.0"
+    "pytest-benchmark>=5.2.3",
+    "qpretrieve>=0.6.0",
 ]
 docs = [
     "sphinx>=7.2",
@@ -32,6 +33,7 @@ examples = [
     "matplotlib>=3.10.8",
     "qpretrieve>=0.6.0",
     "zarr>=3.1.0",
+    "scikit-image>=0.24.0",
 ]
 dev = [
     { include-group = "tests" },
