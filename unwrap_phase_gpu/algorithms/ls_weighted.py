@@ -6,6 +6,7 @@ def algo_ls_weighted(
         phase_wrapped: xp.ndarray,
         border_thresh=1.5,
         n_iter=200,
+        restore_plane: bool = False,
 ):
     """
     Weighted least-squares unwrapping with border masking.
@@ -14,10 +15,12 @@ def algo_ls_weighted(
     ----------
     phase_wrapped : xp.ndarray
         Wrapped phase, shape (N, H, W) or (H, W).
-    border_thresh : float
+        border_thresh : float
         Gradient magnitude threshold for border detection.
     n_iter : int
         Jacobi iterations for the weighted Poisson solve.
+    restore_plane : bool, optional
+        If True, add back mean wrapped gradient plane to preserve global slope.
 
     Returns
     -------
@@ -49,11 +52,22 @@ def algo_ls_weighted(
     gx = (gx + pi) % two_pi - pi
     gy = (gy + pi) % two_pi - pi
 
+    gx_mean = gx.mean(axis=(1, 2), keepdims=True)
+    gy_mean = gy.mean(axis=(1, 2), keepdims=True)
+
     w = _phase_border_weights(phase_wrapped, thresh=border_thresh)
 
     f = _weighted_divergence(gx, gy, w)
 
     phi = _weighted_poisson_solver(f, w, n_iter=n_iter)
+
+    if restore_plane:
+        N, H, W = phi.shape
+        x_idx = xp.arange(W, dtype=dtype).reshape(1, 1, W)
+        y_idx = xp.arange(H, dtype=dtype).reshape(1, H, 1)
+        plane = gx_mean * x_idx + gy_mean * y_idx
+        anchor = phase_wrapped[:, 0, 0] - (phi[:, 0, 0] + plane[:, 0, 0])
+        phi = phi + plane + anchor[:, None, None]
 
     if input_2d:
         phi = phi[0]

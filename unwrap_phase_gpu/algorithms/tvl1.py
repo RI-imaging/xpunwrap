@@ -5,6 +5,7 @@ from .._ndarray_backend import xp
 def algo_tvl1(
         phase_wrapped: xp.ndarray,
         axis=0,
+        restore_plane: bool = False,
         **kwargs
 ) -> xp.ndarray:
     """
@@ -16,6 +17,8 @@ def algo_tvl1(
         Shape (N, H, W) or (H, W)
     axis : int
         Stack axis
+    restore_plane : bool, optional
+        If True, add back mean wrapped gradient plane to preserve global slope.
     kwargs :
         Passed to unwrap_2d_tvl1_gpu
 
@@ -30,7 +33,10 @@ def algo_tvl1(
        vol. 40, no. 1, pp. 120-145, 2011.
     """
     if phase_wrapped.ndim == 2:
-        return _unwrap_2d_tvl1_gpu(phase_wrapped, **kwargs)
+        out = _unwrap_2d_tvl1_gpu(phase_wrapped, **kwargs)
+        if restore_plane:
+            out = _add_plane_from_wrapped(out, phase_wrapped)
+        return out
     if phase_wrapped.ndim != 3:
         raise ValueError("phase_wrapped must have shape (H, W) or (N, H, W).")
 
@@ -40,8 +46,29 @@ def algo_tvl1(
 
     for i in range(phase_wrapped.shape[0]):
         out[i] = _unwrap_2d_tvl1_gpu(phase_wrapped[i], **kwargs)
+        if restore_plane:
+            out[i] = _add_plane_from_wrapped(out[i], phase_wrapped[i])
 
     return xp.moveaxis(out, 0, axis)
+
+
+def _add_plane_from_wrapped(phi, wrapped):
+    """Restore mean gradient plane removed by Poisson-like null space."""
+    dtype = phi.dtype
+    H, W = phi.shape
+    gx = xp.diff(wrapped, axis=1, append=wrapped[:, -1:])
+    gy = xp.diff(wrapped, axis=0, append=wrapped[-1:, :])
+    pi = real_pi(xp, dtype)
+    two_pi = dtype.type(2) * pi
+    gx = (gx + pi) % two_pi - pi
+    gy = (gy + pi) % two_pi - pi
+    gx_mean = gx.mean()
+    gy_mean = gy.mean()
+    x_idx = xp.arange(W, dtype=dtype).reshape(1, W)
+    y_idx = xp.arange(H, dtype=dtype).reshape(H, 1)
+    plane = gx_mean * x_idx + gy_mean * y_idx
+    anchor = wrapped[0, 0] - (phi[0, 0] + plane[0, 0])
+    return phi + plane + anchor
 
 
 def _unwrap_2d_tvl1_gpu(

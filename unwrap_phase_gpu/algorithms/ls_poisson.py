@@ -2,7 +2,7 @@ from .._dtype_utils import complex_dtype_for_real, real_pi
 from .._ndarray_backend import xp
 
 
-def algo_ls_poisson(phase_wrapped: xp.ndarray) -> xp.ndarray:
+def algo_ls_poisson(phase_wrapped: xp.ndarray, restore_plane: bool = False) -> xp.ndarray:
     """
     Batched 2D phase unwrapping using a least-squares Poisson solver.
 
@@ -10,6 +10,9 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray) -> xp.ndarray:
     ----------
     phase_wrapped : xp.ndarray
         Wrapped phase, shape (N, H, W) or (H, W), values in [-pi, pi).
+    restore_plane : bool, optional
+        If True, add back the average wrapped gradient plane (avoids losing
+        linear ramps inherent to the input). Default False.
 
     Returns
     -------
@@ -41,6 +44,10 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray) -> xp.ndarray:
     gx = (gx + pi) % two_pi - pi
     gy = (gy + pi) % two_pi - pi
 
+    # Mean wrapped gradients approximate the true plane slope.
+    gx_mean = gx.mean(axis=(1, 2), keepdims=True)
+    gy_mean = gy.mean(axis=(1, 2), keepdims=True)
+
     # Divergence of wrapped gradients
     div_x = xp.diff(gx, axis=2, prepend=gx[:, :, :1])
     div_y = xp.diff(gy, axis=1, prepend=gy[:, :1, :])
@@ -68,6 +75,16 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray) -> xp.ndarray:
     # Inverse FFT
     phase_unwrapped = xp.fft.ifft2(phi_hat, axes=(1, 2)).real
     phase_unwrapped = phase_unwrapped.astype(dtype, copy=False)
+
+    if restore_plane:
+        # Reconstruct plane using mean gradients and anchor at (0,0)
+        H = phase_unwrapped.shape[1]
+        W = phase_unwrapped.shape[2]
+        x_idx = xp.arange(W, dtype=dtype).reshape(1, 1, W)
+        y_idx = xp.arange(H, dtype=dtype).reshape(1, H, 1)
+        plane = gx_mean * x_idx + gy_mean * y_idx
+        anchor = phase_wrapped[:, 0, 0] - (phase_unwrapped[:, 0, 0] + plane[:, 0, 0])
+        phase_unwrapped = phase_unwrapped + plane + anchor[:, None, None]
 
     if input_2d:
         phase_unwrapped = phase_unwrapped[0]

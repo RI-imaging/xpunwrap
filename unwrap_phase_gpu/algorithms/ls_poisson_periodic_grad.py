@@ -2,7 +2,7 @@ from .._dtype_utils import complex_dtype_for_real, real_pi
 from .._ndarray_backend import xp
 
 
-def algo_ls_poisson_periodic_grad(phase_wrapped: xp.ndarray) -> xp.ndarray:
+def algo_ls_poisson_periodic_grad(phase_wrapped: xp.ndarray, restore_plane: bool = False) -> xp.ndarray:
     """
     Least-squares unwrapping with periodic gradient enforcement.
 
@@ -10,6 +10,9 @@ def algo_ls_poisson_periodic_grad(phase_wrapped: xp.ndarray) -> xp.ndarray:
     ----------
     phase_wrapped : xp.ndarray
         Wrapped phase, shape (H, W) or (N, H, W), values in [-pi, pi).
+    restore_plane : bool, optional
+        If True, reintroduce the mean wrapped gradient plane to preserve linear
+        ramps lost in the Poisson null space. Default False.
 
     Returns
     -------
@@ -37,10 +40,20 @@ def algo_ls_poisson_periodic_grad(phase_wrapped: xp.ndarray) -> xp.ndarray:
     # periodic gradients
     gx, gy = wrapped_gradients_stack(phase_wrapped)
     gx, gy = enforce_periodic_gradients_stack(gx, gy)
+    gx_mean = gx.mean(axis=(1, 2), keepdims=True)
+    gy_mean = gy.mean(axis=(1, 2), keepdims=True)
     rhs = divergence_stack(gx, gy)
     phi = poisson_solve_fft_stack(rhs)
     # invert in this case
     phi *= -1
+    if restore_plane:
+        N, H, W = phi.shape
+        dtype = phi.dtype
+        x_idx = xp.arange(W, dtype=dtype).reshape(1, 1, W)
+        y_idx = xp.arange(H, dtype=dtype).reshape(1, H, 1)
+        plane = gx_mean * x_idx + gy_mean * y_idx
+        anchor = phase_wrapped[:, 0, 0] - (phi[:, 0, 0] + plane[:, 0, 0])
+        phi = phi + plane + anchor[:, None, None]
     if input_2d:
         phi = phi[0]
     return phi
