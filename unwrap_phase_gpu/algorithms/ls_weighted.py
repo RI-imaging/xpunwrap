@@ -1,5 +1,6 @@
 from .._dtype_utils import real_pi
 from .._ndarray_backend import xp
+from ._plane_utils import restore_mean_plane
 
 
 def algo_ls_weighted(
@@ -52,9 +53,6 @@ def algo_ls_weighted(
     gx = (gx + pi) % two_pi - pi
     gy = (gy + pi) % two_pi - pi
 
-    gx_mean = gx.mean(axis=(1, 2), keepdims=True)
-    gy_mean = gy.mean(axis=(1, 2), keepdims=True)
-
     w = _phase_border_weights(phase_wrapped, thresh=border_thresh)
 
     f = _weighted_divergence(gx, gy, w)
@@ -62,12 +60,7 @@ def algo_ls_weighted(
     phi = _weighted_poisson_solver(f, w, n_iter=n_iter)
 
     if restore_plane:
-        N, H, W = phi.shape
-        x_idx = xp.arange(W, dtype=dtype).reshape(1, 1, W)
-        y_idx = xp.arange(H, dtype=dtype).reshape(1, H, 1)
-        plane = gx_mean * x_idx + gy_mean * y_idx
-        anchor = phase_wrapped[:, 0, 0] - (phi[:, 0, 0] + plane[:, 0, 0])
-        phi = phi + plane + anchor[:, None, None]
+        phi = restore_mean_plane(phi, phase_wrapped)
 
     if input_2d:
         phi = phi[0]

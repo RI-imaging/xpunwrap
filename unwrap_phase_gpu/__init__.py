@@ -5,6 +5,7 @@ from .algorithms import (
     algo_ls_poisson_periodic_grad,
     algo_ls_weighted,
     algo_tvl1,
+    algo_skimage_unwrap,
 )
 
 
@@ -13,6 +14,7 @@ def algos_available():
     for algo in [algo_ls_poisson,
                  algo_ls_poisson_periodic_grad,
                  algo_ls_weighted,
-                 algo_tvl1]:
+                 algo_tvl1,
+                 algo_skimage_unwrap]:
         algos_available[algo.__name__] = algo
     return algos_available

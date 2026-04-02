@@ -17,6 +17,7 @@ include-package-data = true
 # cupy has several installation options, depending on your CUDA Toolkit version
 cupy-cuda12x = ["cupy-cuda12x"]
 cupy-cuda13x = ["cupy-cuda13x"]
+skimage = ["scikit-image>=0.20.0"]
 
 [dependency-groups]
 tests = [

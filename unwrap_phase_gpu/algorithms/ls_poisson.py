@@ -1,5 +1,6 @@
 from .._dtype_utils import complex_dtype_for_real, real_pi
 from .._ndarray_backend import xp
+from ._plane_utils import restore_mean_plane
 
 
 def algo_ls_poisson(phase_wrapped: xp.ndarray, restore_plane: bool = False) -> xp.ndarray:
@@ -77,14 +78,7 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray, restore_plane: bool = False) -> x
     phase_unwrapped = phase_unwrapped.astype(dtype, copy=False)
 
     if restore_plane:
-        # Reconstruct plane using mean gradients and anchor at (0,0)
-        H = phase_unwrapped.shape[1]
-        W = phase_unwrapped.shape[2]
-        x_idx = xp.arange(W, dtype=dtype).reshape(1, 1, W)
-        y_idx = xp.arange(H, dtype=dtype).reshape(1, H, 1)
-        plane = gx_mean * x_idx + gy_mean * y_idx
-        anchor = phase_wrapped[:, 0, 0] - (phase_unwrapped[:, 0, 0] + plane[:, 0, 0])
-        phase_unwrapped = phase_unwrapped + plane + anchor[:, None, None]
+        phase_unwrapped = restore_mean_plane(phase_unwrapped, phase_wrapped)
 
     if input_2d:
         phase_unwrapped = phase_unwrapped[0]

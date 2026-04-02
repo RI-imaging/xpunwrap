@@ -1481,6 +1481,9 @@ cupy-cuda12x = [
 cupy-cuda13x = [
     { name = "cupy-cuda13x" },
 ]
+skimage = [
+    { name = "scikit-image" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -1519,8 +1522,9 @@ requires-dist = [
     { name = "cupy-cuda12x", marker = "extra == 'cupy-cuda12x'" },
     { name = "cupy-cuda13x", marker = "extra == 'cupy-cuda13x'" },
     { name = "numpy", specifier = ">=2.2.6" },
+    { name = "scikit-image", marker = "extra == 'skimage'", specifier = ">=0.20.0" },
 ]
-provides-extras = ["cupy-cuda12x", "cupy-cuda13x"]
+provides-extras = ["cupy-cuda12x", "cupy-cuda13x", "skimage"]
 
 [package.metadata.requires-dev]
 dev = [
