@@ -58,11 +58,11 @@ def _unwrap_cols_then_rows(image_wrapped: np.ndarray) -> np.ndarray:
 def _unwrap_2d(image_wrapped: np.ndarray) -> np.ndarray | None:
     """Optional 2D unwrap using skimage (as a stand‑in for MATLAB SRNCP)."""
     try:
-        from skimage.restoration import unwrap_phase
+        algo = upg.algos_available()["algo_skimage_unwrap"]
     except Exception as exc:  # pragma: no cover - optional dependency
         warnings.warn(f"skimage not available, skipping 2D unwrap: {exc}")
         return None
-    return unwrap_phase(image_wrapped)
+    return algo(image_wrapped)
 
 
 def _plot_intensity(

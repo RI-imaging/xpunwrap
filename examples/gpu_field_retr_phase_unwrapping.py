@@ -25,6 +25,11 @@ phase_wrapped = xp.asarray(holo.phase - bg.phase).astype(xp.float32)
 outputs = {}
 for algo_name, algo in upg.algos_available().items():
     outputs[algo_name] = algo(phase_wrapped)
+skimage_out = outputs.get("algo_skimage_unwrap", None)
+if skimage_out is not None:
+    outputs_no_skimage = {k: v for k, v in outputs.items() if k != "algo_skimage_unwrap"}
+else:
+    outputs_no_skimage = outputs
 
 # plot the wrapped and unwrapped phases
 plt.style.use("dark_background")
@@ -35,7 +40,14 @@ axes = axes.flatten(order="F")
 axes[0].imshow(phase_wrapped.get()[0])
 axes[0].set_title("Wrapped Phase")
 
-for i, (algo_name, arr) in enumerate(outputs.items(), start=2):
+if skimage_out is not None:
+    axes[1].imshow(skimage_out.get()[0])
+    axes[1].set_title("Unwrapped\nalgo_skimage_unwrap")
+else:
+    axes[1].text(0.5, 0.5, "skimage missing", ha="center", va="center")
+    axes[1].set_title("Unwrapped\nalgo_skimage_unwrap")
+
+for i, (algo_name, arr) in enumerate(outputs_no_skimage.items(), start=2):
     ax = axes[i]
     ax.imshow(arr.get()[0])
     ax.set_title(f"Unwrapped\n{algo_name}")
@@ -44,5 +56,5 @@ for ax in axes:
     ax.set_axis_off()
 
 plt.tight_layout(w_pad=4.5)
-# plt.savefig("gpu_field_retr_phase_unwrapping.png")
-plt.show()
+plt.savefig("gpu_field_retr_phase_unwrapping.png")
+# plt.show()

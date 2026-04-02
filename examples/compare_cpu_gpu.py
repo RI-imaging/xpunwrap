@@ -14,7 +14,6 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from skimage.restoration import unwrap_phase as sk_unwrap
 
 import qpretrieve
 import unwrap_phase_gpu as upg
@@ -42,6 +41,10 @@ def _stack_phase(arr: np.ndarray) -> np.ndarray:
 
 def time_cpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
     qpretrieve.set_ndarray_backend("numpy")
+    try:
+        algo = upg.algos_available()["algo_skimage_unwrap"]
+    except Exception:
+        return None
     times = []
     for _ in range(repeats):
         start = time.perf_counter()
@@ -50,7 +53,7 @@ def time_cpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
         holo.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
         bg.process_like(holo)
         phase_wrp = np.asarray(holo.phase - bg.phase, dtype=np.float32)
-        sk_unwrap(phase_wrp)
+        algo(phase_wrp)
         times.append((time.perf_counter() - start) * 1000.0)
     return float(np.mean(times)), float(np.std(times))
 
@@ -102,12 +105,20 @@ def time_gpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
 def main():
     raw = _load_raw_numpy()
 
-    cpu_mean, cpu_std = time_cpu_pipeline(raw)
+    cpu = time_cpu_pipeline(raw)
     gpu = time_gpu_pipeline(raw)
 
-    labels = ["CPU skimage", "GPU ls_poisson"]
-    means = [cpu_mean, gpu[0] if gpu else None]
-    stds = [cpu_std, gpu[1] if gpu else None]
+    labels = []
+    means = []
+    stds = []
+    if cpu:
+        labels.append("CPU skimage")
+        means.append(cpu[0])
+        stds.append(cpu[1])
+    if gpu:
+        labels.append("GPU ls_poisson")
+        means.append(gpu[0])
+        stds.append(gpu[1])
 
     plt.style.use("dark_background")
     fig, ax = plt.subplots(figsize=(6, 4), facecolor='#181C24')
