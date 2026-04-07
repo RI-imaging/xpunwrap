@@ -120,7 +120,7 @@ def _render_plot_grid(plots, x, y, figure_title: str, save_path: str | None = No
     n_plots = len(plots)
     n_cols = 2
     n_rows = math.ceil(n_plots / n_cols)
-    fig = plt.figure(figsize=(10, 4 * n_rows))
+    fig = plt.figure(figsize=(14, 4 * n_rows))
     fig.suptitle(figure_title, fontsize=16)
     gs = fig.add_gridspec(n_rows, n_cols, wspace=0.08, hspace=0.5)
 
