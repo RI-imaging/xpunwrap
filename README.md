@@ -5,7 +5,8 @@
 </picture>
 
 
-# Phase Unwrapping on GPU (and CPU), with Python
+# xpUnwrap
+**Phase Unwrapping on GPU (and CPU), with Python**
 
 There are many phase unwrapping algorithms out there. Many are implemented in
 CUDA, C++ etc. I haven't yet found any algorithm that interfaces 
@@ -17,6 +18,14 @@ Please inform me if you know of one that is open-source.
 This package aims to make GPU-based phase unwrapping in Python seamless.
 If you don't have a GPU, don't worry, all the code works on the CPU
 (albeit slower).
+
+### What does "xp" stand for?
+
+The ``xp`` in xpUnwrap references several things: 
+ - CuPy's [agnostic code idea](https://docs.cupy.dev/en/stable/user_guide/basic.html#how-to-write-cpu-gpu-agnostic-code)
+   where ``cp`` is for cupy and ``np`` is for numpy.
+ - the G in GPU and C in CPU
+
 
 ## Installation
 
