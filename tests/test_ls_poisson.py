@@ -1,4 +1,4 @@
-from unwrap_phase_gpu.algorithms import algo_ls_poisson
+from xpunwrap.algorithms import algo_ls_poisson
 
 from tests.helper_methods import assert_shape_dtype
 

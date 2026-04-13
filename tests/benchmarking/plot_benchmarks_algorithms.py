@@ -40,7 +40,7 @@ def load_results() -> List[Dict[str, object]]:
 
 def _group_defs():
     return [
-        ("ls_poisson family", ["algo_ls_poisson", "algo_ls_poisson_periodic_grad"]),
+        ("ls_poisson family", ["algo_ls_poisson", "algo_ls_poisson_pg"]),
         ("ls_weighted", ["algo_ls_weighted"]),
         ("tvl1", ["algo_tvl1"]),
     ]

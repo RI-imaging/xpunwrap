@@ -19,7 +19,7 @@ import numpy as np
 import pytest
 import qpretrieve
 
-import unwrap_phase_gpu as upg
+import xpunwrap
 
 DATA_PATH = Path(__file__).parent.parent / "data" / "hologram_cell.npz"
 RESULTS_PATH = Path(__file__).parent / "benchmark_pipeline_cupy.json"
@@ -53,15 +53,15 @@ def _load_and_tile_raw() -> Dict[str, np.ndarray]:
 )
 @pytest.mark.parametrize(
     "algo_name",
-    sorted(name for name in upg.algos_available().keys()
+    sorted(name for name in xpunwrap.algos_available().keys()
            #if name != "algo_tvl1"
            ),
 )
 def test_benchmark_pipeline_cupy(algo_name):
-    upg.set_ndarray_backend("cupy")
+    xpunwrap.set_ndarray_backend("cupy")
     qpretrieve.set_ndarray_backend("cupy")
-    xp = upg.get_ndarray_backend()
-    algo = upg.algos_available()[algo_name]
+    xp = xpunwrap.get_ndarray_backend()
+    algo = xpunwrap.algos_available()[algo_name]
 
     raw = _load_and_tile_raw()
 

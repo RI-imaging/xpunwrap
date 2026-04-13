@@ -1,5 +1,5 @@
 """
-Benchmark unwrap_phase_gpu algorithms on the hologram_cell dataset.
+Benchmark xpunwrap algorithms on the hologram_cell dataset.
 
 Run with:
     pytest -q tests/test_benchmark_algorithms.py
@@ -19,11 +19,11 @@ import numpy as np
 import pytest
 import qpretrieve
 
-import unwrap_phase_gpu as upg
+import xpunwrap
 
-BENCH_RESULTS: List[Dict[str, object]] = []
+DATA_PATH = Path(__file__).parent.parent / "data" / "hologram_cell.npz"
 RESULTS_PATH = Path(__file__).parent / "benchmark_results.json"
-DATA_PATH = Path(__file__).parent / "data" / "hologram_cell.npz"
+BENCH_RESULTS: List[Dict[str, object]] = []
 STACK_REPEATS = 32  # aim to fill ~8 GB with float64 on 1024x1024 tiles
 TILE_SHAPE = (512, 512)  # will tile to this size
 
@@ -58,7 +58,7 @@ def benchmark_cell_phase_data(backend):
     phase_wrp_np = phase_wrp_np[:TILE_SHAPE[0], :TILE_SHAPE[1]]
     phase_wrp_np = np.repeat(phase_wrp_np, repeats=STACK_REPEATS, axis=0)
 
-    xp = upg.get_ndarray_backend()
+    xp = xpunwrap.get_ndarray_backend()
     if backend == "cupy":
         # Keep both host and device copies for timing transfers.
         phase_wrp_xp = xp.asarray(phase_wrp_np)
@@ -78,7 +78,8 @@ def pytest_sessionstart(session):
 @pytest.mark.parametrize(
     "algo_name",
     sorted(
-        name for name in upg.algos_available().keys()
+        name for name in xpunwrap.algos_available().keys()
+        if name != "algo_tvl1"
     ),
 )
 def test_benchmark_algorithms(benchmark, backend, benchmark_cell_phase_data, algo_name):
@@ -87,8 +88,8 @@ def test_benchmark_algorithms(benchmark, backend, benchmark_cell_phase_data, alg
 
     The `backend` and `benchmark_cell_phase_data` fixtures handle data prep.
     """
-    xp = upg.get_ndarray_backend()
-    algo = upg.algos_available()[algo_name]
+    xp = xpunwrap.get_ndarray_backend()
+    algo = xpunwrap.algos_available()[algo_name]
     host_stack = benchmark_cell_phase_data["np_stack"]
     device_stack = benchmark_cell_phase_data["xp_stack"]
 

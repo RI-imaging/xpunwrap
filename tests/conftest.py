@@ -1,9 +1,8 @@
 import pathlib
 import pytest
 import qpretrieve
-from qpretrieve.data_array_layout import convert_data_to_3d_array_layout
 
-import unwrap_phase_gpu as upg
+import xpunwrap
 
 data_path = pathlib.Path(__file__).parent / "data"
 
@@ -16,15 +15,15 @@ def backend(request):
             __import__("cupy")
         except Exception:
             pytest.skip("cupy not installed")
-    upg.set_ndarray_backend(backend_name)
+    xpunwrap.set_ndarray_backend(backend_name)
     yield backend_name
     # always change back to numpy for cleanup
-    upg.set_ndarray_backend("numpy")
+    xpunwrap.set_ndarray_backend("numpy")
 
 
 @pytest.fixture
 def fake_phase_data(backend):
-    xp = upg.get_ndarray_backend()
+    xp = xpunwrap.get_ndarray_backend()
     rng = xp.random.default_rng(7)
     phase_stack = rng.uniform(
         -xp.pi, xp.pi, size=(5, 32, 32)
@@ -38,7 +37,7 @@ def fake_phase_data(backend):
 
 @pytest.fixture
 def cell_phase_data(backend):
-    xp = upg.get_ndarray_backend()
+    xp = xpunwrap.get_ndarray_backend()
     qpretrieve.set_ndarray_backend(backend)
 
     edata = xp.load(data_path / "hologram_cell.npz")

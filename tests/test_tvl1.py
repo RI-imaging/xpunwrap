@@ -1,4 +1,4 @@
-from unwrap_phase_gpu.algorithms import algo_tvl1
+from xpunwrap.algorithms import algo_tvl1
 
 from tests.helper_methods import assert_shape_dtype
 
