@@ -1,7 +1,7 @@
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="xpunwrap_dark.png">
-  <img src="xpunwrap_light.png" alt="XPUnwrap">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/logos/xpunwrap_dark.png">
+  <img src="docs/logos/xpunwrap_light.png" alt="XPUnwrap">
 </picture>
 
 
