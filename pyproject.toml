@@ -1,5 +1,5 @@
 [project]
-name = "unwrap_phase_gpu"
+name = "xpunwrap"
 version = "0.1.0"
 description = "Phase unwrapping algorithms which are CPU and GPU agnostic"
 readme = "README.md"
@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["unwrap_phase_gpu"]
+packages = ["xpunwrap"]
 include-package-data = true
 
 [project.optional-dependencies]
@@ -23,7 +23,7 @@ skimage = ["scikit-image>=0.20.0"]
 tests = [
     "pytest>=9.0.2",
     "pytest-benchmark>=5.2.3",
-    "qpretrieve>=0.6.0",
+    "qpretrieve[FFTW]>=0.6.0",
 ]
 docs = [
     "sphinx>=7.2",
