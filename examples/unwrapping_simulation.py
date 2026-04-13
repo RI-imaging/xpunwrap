@@ -32,7 +32,7 @@ def _generate_phase(nrx: int = 512, nry: int = 512) -> Tuple[np.ndarray, np.ndar
     tx = np.linspace(-3.0, 3.0, nrx)
     ty = np.linspace(-3.0, 3.0, nry)
     x, y = np.meshgrid(tx, ty)
-    image = 20.0 * np.exp(-0.25 * (x ** 2 + y ** 2)) + 2.0 * x + y
+    image = 20.0 * np.exp(-0.25 * (x**2 + y**2)) + 2.0 * x + y
     return x, y, image
 
 
@@ -66,7 +66,7 @@ def _unwrap_2d(image_wrapped: np.ndarray) -> np.ndarray | None:
 
 
 def _plot_intensity(
-        fig: plt.Figure, ax: plt.Axes, x: np.ndarray, y: np.ndarray, image: np.ndarray, title: str
+    fig: plt.Figure, ax: plt.Axes, x: np.ndarray, y: np.ndarray, image: np.ndarray, title: str
 ) -> None:
     im = ax.imshow(
         image,
@@ -82,18 +82,18 @@ def _plot_intensity(
 
 
 def _plot_surface(
-        ax: plt.Axes,
-        x: np.ndarray,
-        y: np.ndarray,
-        image: np.ndarray,
-        title: str,
-        elev: float = 70.0,
-        clip: tuple[float, float] | None = None,
+    ax: plt.Axes,
+    x: np.ndarray,
+    y: np.ndarray,
+    image: np.ndarray,
+    title: str,
+    elev: float = 70.0,
+    clip: tuple[float, float] | None = None,
 ) -> None:
     # Match MATLAB surf: flip X, flip Z by rows so first row sits at the front.
     x_use = y[::-1, :]
     y_use = x
-    z_use = image  # [::-1, :]
+    z_use = image
     if clip is not None:
         z_use = np.clip(z_use, clip[0], clip[1])
     surf = ax.plot_surface(
@@ -129,7 +129,7 @@ def _render_plot_grid(plots, x, y, figure_title: str, save_path: str | None = No
         row, col = divmod(idx, n_cols)
         if kind == "surface":
             ax = fig.add_subplot(gs[row, col], projection="3d")
-            surf = _plot_surface(
+            _ = _plot_surface(
                 ax,
                 x,
                 y,
@@ -138,7 +138,6 @@ def _render_plot_grid(plots, x, y, figure_title: str, save_path: str | None = No
                 elev=rest[0] if rest else 30.0,
                 clip=rest[1] if len(rest) > 1 else None,
             )
-            # fig.colorbar(surf, ax=ax, fraction=0.04, pad=0.02, shrink=0.7)
         else:
             ax = fig.add_subplot(gs[row, col])
             _plot_intensity(fig, ax, x, y, data, title)
@@ -150,9 +149,9 @@ def _render_plot_grid(plots, x, y, figure_title: str, save_path: str | None = No
 
 
 def main(
-        plot_itoh: bool = True,
-        plot_poisson: bool = True,
-        plot_2d_comparison: bool = True,
+    plot_itoh: bool = True,
+    plot_poisson: bool = True,
+    plot_2d_comparison: bool = True,
 ) -> None:
     # Ensure CPU numpy backend for the package algorithms
     xpunwrap.set_ndarray_backend("numpy")
@@ -296,7 +295,7 @@ def main(
             ax.set_ylabel("y axis")
             fig.colorbar(im, ax=ax, fraction=0.04, pad=0.02)
 
-        fig.savefig("unwrapping_simulation_comparison.png", dpi=150, bbox_inches="tight")
+        fig.savefig("unwrapping_2d_comparison.png", dpi=150, bbox_inches="tight")
         plt.show()
 
 

@@ -13,7 +13,6 @@ excellent "Two-Dimensional Phase Unwrapping Problem" guide.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from typing import Tuple
 
 import xpunwrap
@@ -28,15 +27,15 @@ from xpunwrap.algorithms._plane_utils import restore_mean_plane
 xpunwrap.set_ndarray_backend('numpy')
 xp = xpunwrap.get_ndarray_backend()
 
+
 # load/create the example data, perhaps Fig 9 for good example, and Fig 13 as
 # difficult example
-def _generate_phase(nrx: int = 512, nry: int = 512)\
-        -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def _generate_phase(nrx: int = 512, nry: int = 512) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Create the continuous phase image f(x, y) = 20*exp(-0.25*(x^2+y^2)) + 2x + y."""
     tx = np.linspace(-3.0, 3.0, nrx)
     ty = np.linspace(-3.0, 3.0, nry)
     x, y = np.meshgrid(tx, ty)
-    image = 20.0 * np.exp(-0.25 * (x**2 + y**2)) + 2.0 * x + y
+    image = 20.0 * np.exp(-0.25 * (x ** 2 + y ** 2)) + 2.0 * x + y
     return x, y, image
 
 
