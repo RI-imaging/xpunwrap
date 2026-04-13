@@ -1,3 +1,10 @@
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="xpunwrap_dark.png">
+  <img src="xpunwrap_light.png" alt="XPUnwrap">
+</picture>
+
+
 # Phase Unwrapping on GPU (and CPU), with Python
 
 There are many phase unwrapping algorithms out there. Many are implemented in
@@ -16,19 +23,19 @@ If you don't have a GPU, don't worry, all the code works on the CPU
 ```bash
 
     # if you have the CUDA Toolkit version 12x use:
-    pip install unwrap_phase_gpu[cupy-cuda12x]
+    pip install xpunwrap[cupy-cuda12x]
 
     # if you have the CUDA Toolkit version 13x use:
-    pip install unwrap_phase_gpu[cupy-cuda13x]
+    pip install xpunwrap[cupy-cuda13x]
 
     # to install and just use on the CPU, just don't use any optional dependencies:
-    pip install unwrap_phase_gpu
+    pip install xpunwrap
 ```
 
 ## Compatible Phase Retrieval and Numerical Refocusing GPU packages
 
 In the same group on GitHub, we have two other packages that work seamlessy
-with `unwrap_phase_gpu`.
+with `xpunwrap`.
 - Phase Retrieval that works on CPU and GPU: 
   [qpretrieve](https://github.com/RI-imaging/qpretrieve)
 - Numerical Refocussing that works on CPU ([and soon GPU](https://github.com/RI-imaging/nrefocus/issues/23)): 
@@ -40,16 +47,16 @@ with `unwrap_phase_gpu`.
 ## Documentation and Citations
 
 There will soon be a Reference and API documentation website here
-(unwrap_phase_gpu.readthedocs.io)
+(xpunwrap.readthedocs.io)
 
 <!-- ## Citing this work -->
 
 
-## Using `unwrap_phase_gpu`
+## Using `xpunwrap`
 
 There are several phase unwrapping algorithms to choose from:
 - `algo_ls_poisson`: Least-squares Poisson solver
-- `algo_ls_poisson_periodic_grad`: Least-squares unwrapping with periodic gradient enforcement
+- `algo_ls_poisson_pg`: Least-squares unwrapping with periodic gradient enforcement
 - `algo_ls_weighted`: Weighted least-squares unwrapping with border masking
 - `algo_tvl1`: Total Variation L1 unwrapping
 - Scikit-Image's Path Following algorithm (Herraez et al.) is not implemented
@@ -58,7 +65,7 @@ There are several phase unwrapping algorithms to choose from:
 ```python
 """
 Field retrieval (qpretrieve) and
-phase unwrapping (unwrap_phase_gpu) on GPU.
+phase unwrapping (xpunwrap) on GPU.
 """
 
 from pathlib import Path
@@ -66,7 +73,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import qpretrieve
-import unwrap_phase_gpu as upg
+import xpunwrap as upg
 
 # Force GPU backend for both libraries.
 upg.set_ndarray_backend("cupy")
@@ -84,7 +91,7 @@ phase_wrapped = xp.asarray(holo.phase - bg.phase).astype(xp.float32)
 # Unwrap the phase with all available algorithms
 outputs = {}
 for algo_name, algo in upg.algos_available().items():
-    outputs[algo_name] = algo(phase_wrapped)
+  outputs[algo_name] = algo(phase_wrapped)
 
 # plot the wrapped and unwrapped phases
 plt.style.use("dark_background")
@@ -96,12 +103,12 @@ axes[0].imshow(phase_wrapped.get()[0])
 axes[0].set_title("Wrapped Phase")
 
 for i, (algo_name, arr) in enumerate(outputs.items(), start=2):
-    ax = axes[i]
-    ax.imshow(arr.get()[0])
-    ax.set_title(f"Unwrapped\n{algo_name}")
+  ax = axes[i]
+  ax.imshow(arr.get()[0])
+  ax.set_title(f"Unwrapped\n{algo_name}")
 
 for ax in axes:
-    ax.set_axis_off()
+  ax.set_axis_off()
 
 plt.tight_layout(w_pad=4.5)
 # plt.savefig("gpu_field_retr_phase_unwrapping.png")
