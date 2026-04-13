@@ -37,7 +37,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install --group tests
-          python -m pip install coverage
+          python -m pip install coverage flake8
           python -m pip install -e .
 
       - name: List installed packages
@@ -83,7 +83,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install --group tests
-          python -m pip install coverage kaggle
+          python -m pip install coverage kaggle flake8
           python -m pip install -e ".[skimage,cupy-cuda12x]"
 
       - name: Show CuPy CUDA runtime
