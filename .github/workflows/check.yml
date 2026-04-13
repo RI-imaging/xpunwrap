@@ -1,0 +1,103 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: >
+      test-${{ matrix.os }} -
+      py${{ matrix.python-version }} -
+      ${{ matrix.extras == '.' && 'base' || 'skimage' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install fftw3 libs (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libfftw3-dev libfftw3-double3
+
+      - name: Install fftw3 libs (macOS)
+        if: runner.os == 'macOS'
+        run: brew install fftw
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install --group tests
+          python -m pip install coverage
+          python -m pip install -e .
+
+      - name: List installed packages
+        run: pip freeze
+
+      - name: Test with pytest
+        run: coverage run --source=xpunwrap -m pytest tests --ignore=tests/benchmarking
+
+      - name: Lint with flake8
+        run: flake8 --exclude _version.py .
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+
+  gpu-cuda12x:
+    name: gpu-cuda12x
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    # GitHub-hosted runners do not expose NVIDIA GPUs; this job expects your own runner.
+    runs-on: [self-hosted, linux, x64, gpu, cuda-12]
+    timeout-minutes: 30
+
+    env:
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify GPU
+        run: |
+          nvidia-smi
+          python --version
+
+      - name: Install system libs
+        run: sudo apt-get update && sudo apt-get install -y libfftw3-dev libfftw3-double3
+
+      - name: Install GPU dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install --group tests
+          python -m pip install coverage kaggle
+          python -m pip install -e ".[skimage,cupy-cuda12x]"
+
+      - name: Show CuPy CUDA runtime
+        run: |
+          python -c "import cupy; print('CuPy', cupy.__version__); print('CUDA devices', cupy.cuda.runtime.getDeviceCount())"
+
+      - name: Run GPU-capable test suite
+        run: coverage run --source=xpunwrap -m pytest tests --ignore=tests/benchmarking
+
+      - name: Run GPU pipeline benchmark
+        run: pytest -q tests/benchmarking/test_benchmark_pipeline_cupy.py
+
+      - name: Upload GPU benchmark artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-pipeline-cupy
+          path: tests/benchmarking/benchmark_pipeline_cupy.json
