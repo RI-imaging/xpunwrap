@@ -53,8 +53,11 @@ jobs:
         uses: codecov/codecov-action@v4
 
   gpu-cuda12x:
+    # this will not work as written here, I need to push code to kaggle to get
+    # free GPU compute
     name: gpu-cuda12x
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    if: false
+    # if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     # GitHub-hosted runners do not expose NVIDIA GPUs; this job expects your own runner.
     runs-on: [self-hosted, linux, x64, gpu, cuda-12]
     timeout-minutes: 30
