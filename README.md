@@ -9,8 +9,8 @@
 
 There are many phase unwrapping algorithms out there. Many are implemented in
 CUDA, C++ etc. I haven't yet found any algorithm that interfaces 
-**easily** with Python via the many wonderful GPU-based packages,
-such as CuPy. Please inform me if you know of one that is open-source.
+**easily** with Python via the wonderful GPU-based package CuPy.
+Please inform me if you know of one that is open-source.
 
 <!-- there is one via pytorch -->
 
@@ -30,6 +30,9 @@ If you don't have a GPU, don't worry, all the code works on the CPU
 
     # to install and just use on the CPU, just don't use any optional dependencies:
     pip install xpunwrap
+
+    # to also use skimage's unwrap (CPU-only):
+    pip install xpunwrap[scikit-image]
 ```
 
 ## Compatible Phase Retrieval and Numerical Refocusing GPU packages

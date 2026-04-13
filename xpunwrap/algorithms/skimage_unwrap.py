@@ -11,9 +11,9 @@ from .._ndarray_backend import xp
 
 
 def algo_skimage_unwrap(
-    phase_wrapped: xp.ndarray,
-    restore_plane: bool = False,
-    **kwargs: Any,
+        phase_wrapped: xp.ndarray,
+        restore_plane: bool = False,
+        **kwargs: Any,
 ) -> xp.ndarray:
     """
     2D phase unwrapping using scikit-image's CPU implementation.
@@ -52,7 +52,11 @@ def algo_skimage_unwrap(
     return xp.stack(out, axis=0)
 
 
-def _unwrap_single(arr: xp.ndarray, restore_plane: bool, **kwargs: Any) -> xp.ndarray:
+def _unwrap_single(
+    arr: xp.ndarray,
+    restore_plane: bool,
+    **kwargs: Any,
+) -> xp.ndarray:
     if xp.is_cupy():
         np_arr = xp.asnumpy(arr)
     else:

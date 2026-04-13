@@ -1,5 +1,6 @@
 """
-Benchmark pipeline on GPU only: upload -> phase retrieval -> unwrapping -> download.
+Benchmark pipeline on GPU only:
+upload -> phase retrieval -> unwrapping -> download.
 
 Run:
     pytest -q tests/test_benchmark_pipeline_cupy.py
@@ -53,9 +54,10 @@ def _load_and_tile_raw() -> Dict[str, np.ndarray]:
 )
 @pytest.mark.parametrize(
     "algo_name",
-    sorted(name for name in xpunwrap.algos_available().keys()
-           #if name != "algo_tvl1"
-           ),
+    sorted(
+        name for name in xpunwrap.algos_available().keys()
+        # if name != "algo_tvl1"
+    ),
 )
 def test_benchmark_pipeline_cupy(algo_name):
     xpunwrap.set_ndarray_backend("cupy")
@@ -71,7 +73,6 @@ def test_benchmark_pipeline_cupy(algo_name):
     download_times: List[float] = []
 
     repeats = 3
-    warmups = 1
 
     # Warmup once to build FFT plans etc.
     _synchronize(xp)
@@ -79,7 +80,11 @@ def test_benchmark_pipeline_cupy(algo_name):
     bg_gpu = xp.asarray(raw["bg"])
     holo_obj = qpretrieve.OffAxisHologram(data=holo_gpu)
     bg_obj = qpretrieve.OffAxisHologram(data=bg_gpu)
-    holo_obj.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
+    holo_obj.run_pipeline(
+        filter_name="disk",
+        filter_size=1 / 2,
+        scale_to_filter=True,
+    )
     bg_obj.process_like(holo_obj)
     phase_wrp = xp.asarray(holo_obj.phase - bg_obj.phase, dtype=xp.float64)
     phase_wrp = xp.repeat(phase_wrp, repeats=STACK_REPEATS, axis=0)
@@ -97,7 +102,11 @@ def test_benchmark_pipeline_cupy(algo_name):
         start = time.perf_counter()
         holo_obj = qpretrieve.OffAxisHologram(data=holo_gpu)
         bg_obj = qpretrieve.OffAxisHologram(data=bg_gpu)
-        holo_obj.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
+        holo_obj.run_pipeline(
+            filter_name="disk",
+            filter_size=1 / 2,
+            scale_to_filter=True,
+        )
         bg_obj.process_like(holo_obj)
         phase_wrp = xp.asarray(holo_obj.phase - bg_obj.phase, dtype=xp.float64)
         phase_wrp = xp.repeat(phase_wrp, repeats=STACK_REPEATS, axis=0)

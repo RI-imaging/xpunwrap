@@ -15,9 +15,13 @@ def _use_cupy_backend(arr) -> bool:
     return _cp is not None and isinstance(arr, _cp.ndarray)
 
 
-def restore_mean_plane(phase_unwrapped: xp.ndarray, phase_wrapped: xp.ndarray) -> xp.ndarray:
+def restore_mean_plane(
+    phase_unwrapped: xp.ndarray,
+    phase_wrapped: xp.ndarray,
+) -> xp.ndarray:
     """
-    Reintroduce the mean wrapped gradient plane removed by Poisson-like solvers.
+    Reintroduce the mean wrapped gradient plane removed by
+    Poisson-like solvers.
 
     Supports 2D (H, W) or stacked (N, H, W) inputs. The output matches the
     shape of ``phase_unwrapped``.
@@ -30,7 +34,9 @@ def restore_mean_plane(phase_unwrapped: xp.ndarray, phase_wrapped: xp.ndarray) -
         phase_unwrapped = backend.expand_dims(phase_unwrapped, axis=0)
         phase_wrapped = backend.expand_dims(phase_wrapped, axis=0)
     elif phase_unwrapped.ndim != 3:
-        raise ValueError("phase_unwrapped must have shape (H, W) or (N, H, W).")
+        raise ValueError(
+            "phase_unwrapped must have shape (H, W) or (N, H, W)."
+        )
 
     dtype = phase_unwrapped.dtype
     pi = real_pi(backend, dtype)
@@ -48,7 +54,10 @@ def restore_mean_plane(phase_unwrapped: xp.ndarray, phase_wrapped: xp.ndarray) -
     x_idx = backend.arange(W, dtype=dtype).reshape(1, 1, W)
     y_idx = backend.arange(H, dtype=dtype).reshape(1, H, 1)
     plane = gx_mean * x_idx + gy_mean * y_idx
-    anchor = phase_wrapped[:, 0, 0] - (phase_unwrapped[:, 0, 0] + plane[:, 0, 0])
+    anchor = (
+        phase_wrapped[:, 0, 0]
+        - (phase_unwrapped[:, 0, 0] + plane[:, 0, 0])
+    )
     out = phase_unwrapped + plane + anchor[:, None, None]
 
     if input_2d:

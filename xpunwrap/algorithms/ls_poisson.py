@@ -3,7 +3,10 @@ from .._ndarray_backend import xp
 from ._plane_utils import restore_mean_plane
 
 
-def algo_ls_poisson(phase_wrapped: xp.ndarray, restore_plane: bool = False) -> xp.ndarray:
+def algo_ls_poisson(
+    phase_wrapped: xp.ndarray,
+    restore_plane: bool = False,
+) -> xp.ndarray:
     """
     Batched 2D phase unwrapping using a least-squares Poisson solver.
 
@@ -45,10 +48,6 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray, restore_plane: bool = False) -> x
     gx = (gx + pi) % two_pi - pi
     gy = (gy + pi) % two_pi - pi
 
-    # Mean wrapped gradients approximate the true plane slope.
-    gx_mean = gx.mean(axis=(1, 2), keepdims=True)
-    gy_mean = gy.mean(axis=(1, 2), keepdims=True)
-
     # Divergence of wrapped gradients
     div_x = xp.diff(gx, axis=2, prepend=gx[:, :, :1])
     div_y = xp.diff(gy, axis=1, prepend=gy[:, :1, :])
@@ -65,7 +64,10 @@ def algo_ls_poisson(phase_wrapped: xp.ndarray, restore_plane: bool = False) -> x
     two_pi_c = xp.asarray(two_pi, dtype=complex_dt)
     kx_c = kx.astype(complex_dtype, copy=False)
     ky_c = ky.astype(complex_dtype, copy=False)
-    denom = (two_pi_c * complex_one * kx_c) ** 2 + (two_pi_c * complex_one * ky_c) ** 2
+    denom = (
+        (two_pi_c * complex_one * kx_c) ** 2
+        + (two_pi_c * complex_one * ky_c) ** 2
+    )
     denom[:, 0, 0] = complex_dt.type(1)  # avoid division by zero
 
     # FFT over spatial axes only

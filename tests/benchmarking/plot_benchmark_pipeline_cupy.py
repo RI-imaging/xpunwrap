@@ -30,7 +30,8 @@ OUTPUT_PNG = HERE / "benchmark_pipeline_cupy.png"
 def load_results() -> List[Dict[str, object]]:
     if not RESULTS_JSON.exists():
         raise FileNotFoundError(
-            "benchmark_pipeline_cupy.json not found. Run pytest on tests/test_benchmark_pipeline_cupy.py first."
+            "benchmark_pipeline_cupy.json not found. "
+            "Run pytest on tests/test_benchmark_pipeline_cupy.py first."
         )
     return json.loads(RESULTS_JSON.read_text())
 
@@ -84,7 +85,7 @@ def _plot_subplot(ax, results_map, algos, title):
     if "poisson" in algos[0]:
         xticks[0] = "LS Poisson"
         xticks[1] = "LSP Per Grad"
-    ax.set_xticklabels(labels=xticks, fontsize=fontsize-4)
+    ax.set_xticklabels(labels=xticks, fontsize=fontsize - 4)
     ax.set_ylabel("Time (ms)", fontsize=fontsize)
     ax.set_title(title, fontsize=fontsize)
     ax.grid(axis="y", linestyle="--", alpha=0.3)
@@ -95,7 +96,10 @@ def plot(results: List[Dict[str, object]]) -> None:
     results_map = {r["algorithm"]: r for r in results}
     algos_all = sorted(results_map.keys())
 
-    base_algos = [a for a in algos_all if a not in {"algo_ls_weighted", "algo_tvl1"}]
+    base_algos = [
+        a for a in algos_all
+        if a not in {"algo_ls_weighted", "algo_tvl1"}
+    ]
     weighted_algos = [a for a in algos_all if a == "algo_ls_weighted"]
     tvl1_algos = [a for a in algos_all if a == "algo_tvl1"]
 
@@ -110,10 +114,21 @@ def plot(results: List[Dict[str, object]]) -> None:
     ax_legend.axis("off")
 
     _plot_subplot(ax0, results_map, base_algos, "CuPy Pipeline Steps")
-    _plot_subplot(ax1, results_map, weighted_algos, "CuPy pipeline (ls_weighted)")
+    _plot_subplot(
+        ax1,
+        results_map,
+        weighted_algos,
+        "CuPy pipeline (ls_weighted)",
+    )
     _plot_subplot(ax2, results_map, tvl1_algos, "CuPy pipeline (tvl1)")
 
-    fig.subplots_adjust(wspace=0.3, left=0.05, right=0.95, top=0.9, bottom=0.15)
+    fig.subplots_adjust(
+        wspace=0.3,
+        left=0.05,
+        right=0.95,
+        top=0.9,
+        bottom=0.15,
+    )
     handles, labels = ax0.get_legend_handles_labels()
     ax_legend.legend(handles[::-1], labels[::-1], title="Step", loc="center")
 

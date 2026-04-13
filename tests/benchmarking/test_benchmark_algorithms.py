@@ -47,7 +47,11 @@ def benchmark_cell_phase_data(backend):
     edata_np = np.load(DATA_PATH)
     holo = qpretrieve.OffAxisHologram(data=edata_np["data"])
     bg = qpretrieve.OffAxisHologram(data=edata_np["bg_data"])
-    holo.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
+    holo.run_pipeline(
+        filter_name="disk",
+        filter_size=1 / 2,
+        scale_to_filter=True,
+    )
     bg.process_like(holo)
     phase_wrp_np = np.asarray(holo.phase - bg.phase, dtype=np.float64)
     # Tile to target spatial size
@@ -82,7 +86,12 @@ def pytest_sessionstart(session):
         if name != "algo_tvl1"
     ),
 )
-def test_benchmark_algorithms(benchmark, backend, benchmark_cell_phase_data, algo_name):
+def test_benchmark_algorithms(
+    benchmark,
+    backend,
+    benchmark_cell_phase_data,
+    algo_name,
+):
     """
     Measure runtime via pytest-benchmark for each backend + algorithm.
 
@@ -134,8 +143,12 @@ def test_benchmark_algorithms(benchmark, backend, benchmark_cell_phase_data, alg
         proc_times.append(proc_ms)
         d2h_times.append(d2h_ms)
 
-    # Use pedantic to control rounds/iterations to avoid auto-calibration surprises.
-    benchmark.pedantic(run, rounds=5, iterations=1)
+    # Use pedantic to avoid auto-calibration surprises.
+    benchmark.pedantic(
+        run,
+        rounds=5,
+        iterations=1,
+    )
 
     def _mean_std(arr):
         arr_np = np.asarray(arr, dtype=float)
