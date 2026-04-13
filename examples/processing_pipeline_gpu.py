@@ -8,12 +8,12 @@ Example processing pipeline for phase data on the GPU:
 
 import zarr
 import qpretrieve
-import unwrap_phase_gpu as upg
+import xpunwrap
 
 # set cupy backend
-upg.set_ndarray_backend("cupy")
+xpunwrap.set_ndarray_backend("cupy")
 qpretrieve.set_ndarray_backend("cupy")
-xp = upg.get_ndarray_backend()
+xp = xpunwrap.get_ndarray_backend()
 
 # load data with zarr via GPU memory
 zarr.config.enable_gpu()
@@ -33,14 +33,15 @@ data_holo = zarr.create_array(store=store_holo, data=edata["data"])
 data_bg = zarr.create_array(store=store_bg, data=edata["bg_data"])
 
 # field retrieval on the GPU
-holo = qpretrieve.OffAxisHologram(data_holo[:])
-bg = qpretrieve.OffAxisHologram(data_bg[:])
+fft_interface = qpretrieve.fourier.FFTFilterCupy
+holo = qpretrieve.OffAxisHologram(data_holo[:], fft_interface)
+bg = qpretrieve.OffAxisHologram(data_bg[:], fft_interface)
 holo.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
 bg.process_like(holo)
 phase_wrapped = xp.asarray(holo.phase - bg.phase).astype(xp.float32)
 
 # unwrap the phase on the GPU
-phase_unwrapped = upg.algo_ls_poisson_periodic_grad(phase_wrapped)
+phase_unwrapped = xpunwrap.algo_ls_poisson_pg(phase_wrapped)
 
 # write from GPU to Zarr file
 path = "temp_unwrapped_cell_phase.zip"

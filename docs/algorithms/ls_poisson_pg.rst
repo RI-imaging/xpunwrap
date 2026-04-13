@@ -1,4 +1,4 @@
-Least-Squares with Periodic Gradients (algo_ls_poisson_periodic_grad)
+Least-Squares with Periodic Gradients (algo_ls_poisson_pg)
 =====================================================================
 
 This variant follows the same least-squares Poisson formulation as the
@@ -8,7 +8,7 @@ periodic data or FFT-based solvers that assume wrap-around behavior at the
 boundaries. The result is still a global least-squares solution, but one whose
 gradients are periodic across the image edges. [1]
 
-API: :func:`unwrap_phase_gpu.algorithms.algo_ls_poisson_periodic_grad`
+API: :func:`xpunwrap.algorithms.algo_ls_poisson_pg`
 
 Derivation
 ----------
@@ -45,7 +45,7 @@ Derivation
 7. **Inverse FFT** returns the real-space unwrapped phase. If the input was
    2D, the leading singleton dimension is removed.
 
-.. _ls_poisson_periodic_grad_refs:
+.. _ls_poisson_pg_refs:
 
 References
 ----------

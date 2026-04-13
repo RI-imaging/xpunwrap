@@ -11,7 +11,7 @@ NumPy backend (CPU):
 
 .. code-block:: python
 
-   import unwrap_phase_gpu as upg
+   import xpunwrap as upg
 
    upg.set_ndarray_backend("numpy")
    xp = upg.get_ndarray_backend()
@@ -21,7 +21,7 @@ CuPy backend (GPU):
 
 .. code-block:: python
 
-   import unwrap_phase_gpu as upg
+   import xpunwrap as upg
 
    upg.set_ndarray_backend("cupy")
    xp = upg.get_ndarray_backend()

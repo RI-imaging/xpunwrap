@@ -1,21 +1,22 @@
 """
 Field retrieval (qpretrieve) and
-phase unwrapping (unwrap_phase_gpu) on GPU.
+phase unwrapping (xpunwrap) on GPU.
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 import qpretrieve
-import unwrap_phase_gpu as upg
+import xpunwrap
 
 # Force GPU backend for both libraries.
 qpretrieve.set_ndarray_backend("cupy")
-upg.set_ndarray_backend("cupy")
-xp = upg.get_ndarray_backend()
+xpunwrap.set_ndarray_backend("cupy")
+xp = xpunwrap.get_ndarray_backend()
 
+fft_interface = qpretrieve.fourier.FFTFilterCupy
 edata = np.load("./data/hologram_cell.npz")
-holo = qpretrieve.OffAxisHologram(data=edata["data"])
-bg = qpretrieve.OffAxisHologram(data=edata["bg_data"])
+holo = qpretrieve.OffAxisHologram(edata["data"], fft_interface)
+bg = qpretrieve.OffAxisHologram(edata["bg_data"], fft_interface)
 
 holo.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
 bg.process_like(holo)
@@ -23,7 +24,7 @@ phase_wrapped = xp.asarray(holo.phase - bg.phase).astype(xp.float32)
 
 # Unwrap the phase with all available algorithms
 outputs = {}
-for algo_name, algo in upg.algos_available().items():
+for algo_name, algo in xpunwrap.algos_available().items():
     outputs[algo_name] = algo(phase_wrapped)
 skimage_out = outputs.get("algo_skimage_unwrap", None)
 if skimage_out is not None:

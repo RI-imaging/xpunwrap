@@ -7,8 +7,8 @@ import sys  # noqa: E402
 sys.path.insert(0, str(project_root))
 sys.path.append(str(Path(__file__).resolve().parent / "extensions"))
 
-project = "unwrap_phase_gpu"
-author = "unwrap_phase_gpu contributors"
+project = "xpunwrap"
+author = "xpunwrap contributors"
 
 extensions = [
     "sphinx.ext.autodoc",

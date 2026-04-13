@@ -1,7 +1,7 @@
 API Reference
 =============
 
-.. automodule:: unwrap_phase_gpu
+.. automodule:: xpunwrap
    :members:
    :undoc-members:
    :show-inheritance:
@@ -13,7 +13,7 @@ Algorithms
    :toctree: generated
    :nosignatures:
 
-   unwrap_phase_gpu.algorithms.algo_ls_poisson
-   unwrap_phase_gpu.algorithms.algo_ls_poisson_periodic_grad
-   unwrap_phase_gpu.algorithms.algo_ls_weighted
-   unwrap_phase_gpu.algorithms.algo_tvl1
+   xpunwrap.algorithms.algo_ls_poisson
+   xpunwrap.algorithms.algo_ls_poisson_pg
+   xpunwrap.algorithms.algo_ls_weighted
+   xpunwrap.algorithms.algo_tvl1

@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import qpretrieve
-import unwrap_phase_gpu as upg
+import xpunwrap
 
 DATA_PATH = Path(__file__).parent.parent / "tests" / "data" / "hologram_cell.npz"
 OUTPUT_PNG = Path(__file__).parent / "compare_cpu_gpu.png"
@@ -41,15 +41,25 @@ def _stack_phase(arr: np.ndarray) -> np.ndarray:
 
 def time_cpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
     qpretrieve.set_ndarray_backend("numpy")
+    fft_interface = qpretrieve.fourier.FFTFilterPyFFTW
     try:
-        algo = upg.algos_available()["algo_skimage_unwrap"]
+        algo = xpunwrap.algos_available()["algo_skimage_unwrap"]
     except Exception:
         return None
+
+    # do a warmup, important for PyFFTW
+    holo = qpretrieve.OffAxisHologram(raw["data"], fft_interface)
+    bg = qpretrieve.OffAxisHologram(raw["bg"], fft_interface)
+    holo.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
+    bg.process_like(holo)
+    phase_wrp = np.asarray(holo.phase - bg.phase, dtype=np.float32)
+    algo(phase_wrp)
+
     times = []
     for _ in range(repeats):
         start = time.perf_counter()
-        holo = qpretrieve.OffAxisHologram(data=raw["data"])
-        bg = qpretrieve.OffAxisHologram(data=raw["bg"])
+        holo = qpretrieve.OffAxisHologram(raw["data"], fft_interface)
+        bg = qpretrieve.OffAxisHologram(raw["bg"], fft_interface)
         holo.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
         bg.process_like(holo)
         phase_wrp = np.asarray(holo.phase - bg.phase, dtype=np.float32)
@@ -64,10 +74,11 @@ def time_gpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
     except Exception:
         return None
 
-    upg.set_ndarray_backend("cupy")
     qpretrieve.set_ndarray_backend("cupy")
-    xp = upg.get_ndarray_backend()
-    algo = upg.algos_available()["algo_ls_poisson"]
+    fft_interface = qpretrieve.fourier.FFTFilterCupy
+    xpunwrap.set_ndarray_backend("cupy")
+    xp = xpunwrap.get_ndarray_backend()
+    algo = xpunwrap.algos_available()["algo_ls_poisson"]
 
     def _sync():
         if hasattr(xp, "cuda"):
@@ -78,8 +89,8 @@ def time_gpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
     _sync()
     holo_gpu = xp.asarray(raw["data"])
     bg_gpu = xp.asarray(raw["bg"])
-    holo_obj = qpretrieve.OffAxisHologram(data=holo_gpu)
-    bg_obj = qpretrieve.OffAxisHologram(data=bg_gpu)
+    holo_obj = qpretrieve.OffAxisHologram(holo_gpu, fft_interface)
+    bg_obj = qpretrieve.OffAxisHologram(bg_gpu, fft_interface)
     holo_obj.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
     bg_obj.process_like(holo_obj)
     phase_wrp = xp.asarray(holo_obj.phase - bg_obj.phase, dtype=xp.float32)
@@ -91,8 +102,8 @@ def time_gpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
         start = time.perf_counter()
         holo_gpu = xp.asarray(raw["data"])
         bg_gpu = xp.asarray(raw["bg"])
-        holo_obj = qpretrieve.OffAxisHologram(data=holo_gpu)
-        bg_obj = qpretrieve.OffAxisHologram(data=bg_gpu)
+        holo_obj = qpretrieve.OffAxisHologram(holo_gpu, fft_interface)
+        bg_obj = qpretrieve.OffAxisHologram(bg_gpu, fft_interface)
         holo_obj.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
         bg_obj.process_like(holo_obj)
         phase_wrp = xp.asarray(holo_obj.phase - bg_obj.phase, dtype=xp.float32)

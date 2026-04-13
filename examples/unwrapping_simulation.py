@@ -5,7 +5,7 @@ Generates the synthetic continuous phase image, wraps it, and unwraps it via:
 - Itoh rows→cols (first method)
 - Itoh cols→rows (second method)
 - Optional 2D unwrap using skimage.restoration.unwrap_phase (stand‑in for SRNCP)
-- LS-Poisson (plain and periodic-gradient variants from unwrap_phase_gpu)
+- LS-Poisson (plain and periodic-gradient variants from xpunwrap)
 
 Run:
     python examples/unwrapping_simulation.py
@@ -23,7 +23,7 @@ from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-import unwrap_phase_gpu as upg
+import xpunwrap
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 (needed for 3d projection)
 
 
@@ -32,7 +32,7 @@ def _generate_phase(nrx: int = 512, nry: int = 512) -> Tuple[np.ndarray, np.ndar
     tx = np.linspace(-3.0, 3.0, nrx)
     ty = np.linspace(-3.0, 3.0, nry)
     x, y = np.meshgrid(tx, ty)
-    image = 20.0 * np.exp(-0.25 * (x**2 + y**2)) + 2.0 * x + y
+    image = 20.0 * np.exp(-0.25 * (x ** 2 + y ** 2)) + 2.0 * x + y
     return x, y, image
 
 
@@ -58,7 +58,7 @@ def _unwrap_cols_then_rows(image_wrapped: np.ndarray) -> np.ndarray:
 def _unwrap_2d(image_wrapped: np.ndarray) -> np.ndarray | None:
     """Optional 2D unwrap using skimage (as a stand‑in for MATLAB SRNCP)."""
     try:
-        algo = upg.algos_available()["algo_skimage_unwrap"]
+        algo = xpunwrap.algos_available()["algo_skimage_unwrap"]
     except Exception as exc:  # pragma: no cover - optional dependency
         warnings.warn(f"skimage not available, skipping 2D unwrap: {exc}")
         return None
@@ -66,7 +66,7 @@ def _unwrap_2d(image_wrapped: np.ndarray) -> np.ndarray | None:
 
 
 def _plot_intensity(
-    fig: plt.Figure, ax: plt.Axes, x: np.ndarray, y: np.ndarray, image: np.ndarray, title: str
+        fig: plt.Figure, ax: plt.Axes, x: np.ndarray, y: np.ndarray, image: np.ndarray, title: str
 ) -> None:
     im = ax.imshow(
         image,
@@ -82,18 +82,18 @@ def _plot_intensity(
 
 
 def _plot_surface(
-    ax: plt.Axes,
-    x: np.ndarray,
-    y: np.ndarray,
-    image: np.ndarray,
-    title: str,
-    elev: float = 70.0,
-    clip: tuple[float, float] | None = None,
+        ax: plt.Axes,
+        x: np.ndarray,
+        y: np.ndarray,
+        image: np.ndarray,
+        title: str,
+        elev: float = 70.0,
+        clip: tuple[float, float] | None = None,
 ) -> None:
     # Match MATLAB surf: flip X, flip Z by rows so first row sits at the front.
     x_use = y[::-1, :]
     y_use = x
-    z_use = image#[::-1, :]
+    z_use = image  # [::-1, :]
     if clip is not None:
         z_use = np.clip(z_use, clip[0], clip[1])
     surf = ax.plot_surface(
@@ -150,12 +150,12 @@ def _render_plot_grid(plots, x, y, figure_title: str, save_path: str | None = No
 
 
 def main(
-    plot_itoh: bool = True,
-    plot_poisson: bool = True,
-    plot_2d_comparison: bool = True,
+        plot_itoh: bool = True,
+        plot_poisson: bool = True,
+        plot_2d_comparison: bool = True,
 ) -> None:
     # Ensure CPU numpy backend for the package algorithms
-    upg.set_ndarray_backend("numpy")
+    xpunwrap.set_ndarray_backend("numpy")
 
     x, y, image = _generate_phase()
 
@@ -191,17 +191,17 @@ def main(
             x,
             y,
             "Itoh and skimage unwrapping",
-            save_path="unwrapping_itoh.png",
+            save_path="unwrapping_simulation_itoh.png",
         )
 
     # LS Poisson variants (first row reused: wrapped intensity + surface)
     restore_plane = True
-    xp = upg.get_ndarray_backend()
+    xp = xpunwrap.get_ndarray_backend()
     wrapped_stack = xp.asarray(image_wrapped[None, ...])
-    ls_plain = upg.algo_ls_poisson(wrapped_stack, restore_plane)[0]
-    ls_periodic = upg.algo_ls_poisson_periodic_grad(wrapped_stack, restore_plane)[0]
-    ls_weighted = upg.algo_ls_weighted(wrapped_stack, restore_plane)[0]
-    tvl1 = upg.algo_tvl1(wrapped_stack, restore_plane)[0]
+    ls_plain = xpunwrap.algo_ls_poisson(wrapped_stack, restore_plane)[0]
+    ls_periodic = xpunwrap.algo_ls_poisson_pg(wrapped_stack, restore_plane)[0]
+    ls_weighted = xpunwrap.algo_ls_weighted(wrapped_stack, restore_plane)[0]
+    tvl1 = xpunwrap.algo_tvl1(wrapped_stack, restore_plane)[0]
     sk_unwrap = image_unwrapped_2d
 
     poisson_plots = [
@@ -231,7 +231,7 @@ def main(
             x,
             y,
             "Phase unwrapping comparison (Itoh, LS-Poisson variants, SRNCP stand-in)",
-            save_path="unwrapping_comparison.png",
+            save_path="unwrapping_simulation_poisson.png",
         )
 
     # 2D-only comparison and difference maps vs skimage
@@ -296,7 +296,7 @@ def main(
             ax.set_ylabel("y axis")
             fig.colorbar(im, ax=ax, fraction=0.04, pad=0.02)
 
-        fig.savefig("unwrapping_2d_comparison.png", dpi=150, bbox_inches="tight")
+        fig.savefig("unwrapping_simulation_comparison.png", dpi=150, bbox_inches="tight")
         plt.show()
 
 

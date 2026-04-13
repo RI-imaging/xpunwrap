@@ -8,7 +8,7 @@ they contribute less to the solution. The resulting weighted Poisson solve
 produces a smoother, more robust unwrapped phase in the presence of sharp
 jumps or noisy regions, at the cost of a slower iterative solve. [1] [2]
 
-API: :func:`unwrap_phase_gpu.algorithms.algo_ls_weighted`
+API: :func:`xpunwrap.algorithms.algo_ls_weighted`
 
 Derivation
 ----------

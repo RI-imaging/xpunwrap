@@ -16,17 +16,17 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from typing import Tuple
 
-import unwrap_phase_gpu as upg
-from unwrap_phase_gpu.algorithms.ls_poisson_periodic_grad import (
+import xpunwrap
+from xpunwrap.algorithms.ls_poisson_pg import (
     wrapped_gradients_stack,
     enforce_periodic_gradients_stack,
     divergence_stack,
     poisson_solve_fft_stack,
 )
-from unwrap_phase_gpu.algorithms._plane_utils import restore_mean_plane
+from xpunwrap.algorithms._plane_utils import restore_mean_plane
 
-upg.set_ndarray_backend('numpy')
-xp = upg.get_ndarray_backend()
+xpunwrap.set_ndarray_backend('numpy')
+xp = xpunwrap.get_ndarray_backend()
 
 # load/create the example data, perhaps Fig 9 for good example, and Fig 13 as
 # difficult example
@@ -49,7 +49,7 @@ x, y, image = _generate_phase()
 arr = _wrap_phase(image)
 phase_wrapped = np.repeat(arr[None, ...], repeats=10, axis=0)
 
-# the `algo_ls_poisson_periodic_grad` is broken up into the following steps:
+# the `algo_ls_poisson_pg` is broken up into the following steps:
 #    initial dimensionality check
 #    gx, gy = wrapped_gradients_stack(phase_wrapped)
 #    gx, gy = enforce_periodic_gradients_stack(gx, gy)

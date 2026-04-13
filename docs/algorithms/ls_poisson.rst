@@ -9,7 +9,7 @@ consistent phase (up to an arbitrary constant offset). This is the classic
 FFT-based least-squares approach and is a good default when the wrapped phase
 is reasonably clean and you want a fast, stable solution. [1]
 
-API: :func:`unwrap_phase_gpu.algorithms.algo_ls_poisson`
+API: :func:`xpunwrap.algorithms.algo_ls_poisson`
 
 Derivation
 ----------
