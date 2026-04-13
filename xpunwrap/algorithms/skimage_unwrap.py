@@ -66,7 +66,7 @@ def _unwrap_single(arr: xp.ndarray, restore_plane: bool, **kwargs: Any) -> xp.nd
         raise ImportError(
             "scikit-image is required for algo_skimage_unwrap. "
             "Install with `pip install scikit-image` or the project extra "
-            "`pip install unwrap_phase_gpu[examples]`."
+            "`pip install xpunwrap[examples]`."
         ) from err
 
     np_unwrapped = sk_unwrap(np_arr, **kwargs)

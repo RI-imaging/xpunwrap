@@ -3,7 +3,7 @@ from .._ndarray_backend import xp
 from ._plane_utils import restore_mean_plane
 
 
-def algo_ls_poisson_periodic_grad(phase_wrapped: xp.ndarray, restore_plane: bool = False) -> xp.ndarray:
+def algo_ls_poisson_pg(phase_wrapped: xp.ndarray, restore_plane: bool = False) -> xp.ndarray:
     """
     Least-squares unwrapping with periodic gradient enforcement.
 

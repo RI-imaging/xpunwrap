@@ -46,13 +46,13 @@ class NDArrayBackend:
     def assert_numpy(self):
         assert self.is_numpy(), (
             "ndarray_backend is not 'numpy'. "
-            "To use 'numpy', run `upg.set_ndarray_backend('numpy')`."
+            "To use 'numpy', run `xpunwrap.set_ndarray_backend('numpy')`."
         )
 
     def assert_cupy(self):
         assert self.is_cupy(), (
             "ndarray_backend is not 'cupy'. "
-            "To use 'cupy', run `upg.set_ndarray_backend('cupy')`."
+            "To use 'cupy', run `xpunwrap.set_ndarray_backend('cupy')`."
         )
 
 
