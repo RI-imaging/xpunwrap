@@ -1,7 +1,20 @@
 Algorithm Reference
 ===================
 
-Line-by-line mathematical descriptions of each algorithm.
+Here is an overview of the available phase unwrapping algorithms in this
+package. Please note that TVL1 is quite slow and scikit-image's unwrap algorithm
+is not rewritten here, it is just included for convenience.
+It still only works on the CPU.
+
+The links at the bottom of the page will bring you to a line-by-line
+mathematical description of each algorithm.
+
+For an introduction to the Phase Unwrapping problem, see the excellent 1D and 2D
+introductions written by Dr. Munther Gdeisat and Dr. Francis Lilley.
+You can find them online with the titles "One-Dimensional Phase Unwrapping Problem
+By Dr. Munther Gdeisat and Dr. Francis Lilley" and "Two-Dimensional Phase Unwrapping Problem
+By Dr. Munther Gdeisat and Dr. Francis Lilley", respectively.
+
 
 Overview
 --------

@@ -8,7 +8,7 @@ periodic data or FFT-based solvers that assume wrap-around behavior at the
 boundaries. The result is still a global least-squares solution, but one whose
 gradients are periodic across the image edges. [1]
 
-API: :func:`xpunwrap.algorithms.algo_ls_poisson_pg`
+API: :func:`xpunwrap.algo_ls_poisson_pg<xpunwrap.algorithms.algo_ls_poisson_pg>`
 
 Derivation
 ----------

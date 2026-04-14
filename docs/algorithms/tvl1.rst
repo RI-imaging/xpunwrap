@@ -8,7 +8,7 @@ a fast first-order primal-dual method, applied independently to each slice in
 a stack. The approach is robust to noise and preserves sharp features better
 than simple least-squares methods. [1]
 
-API: :func:`xpunwrap.algorithms.algo_tvl1`
+API: :func:`xpunwrap.algo_tvl1<xpunwrap.algorithms.algo_tvl1>`
 
 Derivation
 ----------

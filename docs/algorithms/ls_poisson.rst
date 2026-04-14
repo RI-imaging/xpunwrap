@@ -1,15 +1,17 @@
 Least-Squares Poisson (algo_ls_poisson)
 =======================================
 
-This algorithm turns phase unwrapping into a least-squares problem: it looks
-for the smooth phase field whose gradients best match the wrapped gradients
-measured from the data. In practice, it computes wrapped forward differences,
-forms their divergence, and solves a Poisson equation to recover a globally
-consistent phase (up to an arbitrary constant offset). This is the classic
+This is the classic
 FFT-based least-squares approach and is a good default when the wrapped phase
 is reasonably clean and you want a fast, stable solution. [1]
 
-API: :func:`xpunwrap.algorithms.algo_ls_poisson`
+This algorithm looks for the smooth phase field whose gradients best
+match the wrapped gradients
+measured from the data. In practice, it computes wrapped forward differences,
+forms their divergence, and solves a Poisson equation to recover a globally
+consistent phase (up to an arbitrary constant offset).
+
+API: :func:`xpunwrap.algo_ls_poisson<xpunwrap.algorithms.algo_ls_poisson>`
 
 Derivation
 ----------
@@ -34,7 +36,20 @@ Derivation
 5. **Poisson equation** for the unwrapped phase :math:`\phi`:
 
    .. math::
-      \nabla^2 \phi = \nabla \cdot g
+      \nabla \cdot g = \nabla^2 \phi
+
+   As the divergence of the gradient is not perfect (there are discontinuities
+   due to phase wrapping), the equation more correctly contains a rotational (curl) variable:
+
+   .. math::
+      \nabla \cdot g = \nabla^2 \phi + \nabla r
+
+   the least-squares error between the gradient and the divergence of the phase
+   is what we will solve (in Fourier domain):
+
+   .. math::
+      \sum  \lvert \nabla \phi - g \rvert^2
+
 
 6. **FFT solve** in the frequency domain:
 
