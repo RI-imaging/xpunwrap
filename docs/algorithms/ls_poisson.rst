@@ -20,8 +20,8 @@ Derivation
 2. **Forward differences** (wrapped gradients):
 
    .. math::
-      g_x = \phi_w(x+1,y) - \phi_w(x,y), \quad
-      g_y = \phi_w(x,y+1) - \phi_w(x,y)
+      g_x = \phi_w((x+1)\bmod W,y) - \phi_w(x,y), \quad
+      g_y = \phi_w(x,(y+1)\bmod H) - \phi_w(x,y)
 
 3. **Wrap the gradients** into :math:`[-\pi,\pi)`:
 
@@ -31,32 +31,34 @@ Derivation
 4. **Divergence** of wrapped gradients:
 
    .. math::
-      \nabla \cdot g = \partial_x g_x + \partial_y g_y
+      \nabla \cdot g =
+      \left(g_x(x,y) - g_x((x-1)\bmod W,y)\right) +
+      \left(g_y(x,y) - g_y(x,(y-1)\bmod H)\right)
 
-5. **Poisson equation** for the unwrapped phase :math:`\phi`:
+5. **Least-squares formulation** for the unwrapped phase :math:`\phi`:
+
+   The discrete objective is:
+
+   .. math::
+      \phi^\star = \arg\min_{\phi}\sum_{x,y}\lvert \nabla \phi - g \rvert^2
+
+   Its normal equation is the Poisson PDE:
 
    .. math::
       \nabla \cdot g = \nabla^2 \phi
 
-   As the divergence of the gradient is not perfect (there are discontinuities
-   due to phase wrapping), the equation more correctly contains a rotational (curl) variable:
-
-   .. math::
-      \nabla \cdot g = \nabla^2 \phi + \nabla r
-
-   the least-squares error between the gradient and the divergence of the phase
-   is what we will solve (in Fourier domain):
-
-   .. math::
-      \sum  \lvert \nabla \phi - g \rvert^2
+   (This is a PDE, not an ODE.)
 
 
 6. **FFT solve** in the frequency domain:
 
    .. math::
       \hat{\phi}(k_x,k_y) =
-      \frac{\hat{\nabla \cdot g}(k_x,k_y)}
-           {(2\pi i k_x)^2 + (2\pi i k_y)^2}
+      -\frac{\hat{\nabla \cdot g}(k_x,k_y)}
+            {(2-2\cos(2\pi k_x)) + (2-2\cos(2\pi k_y))}
+
+   Here :math:`k_x, k_y` are normalized frequencies from
+   :math:`\mathrm{fftfreq}` (cycles/sample).
 
    The DC component is set to zero to enforce a zero-mean solution.
 

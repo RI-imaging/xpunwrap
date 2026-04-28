@@ -1,6 +1,7 @@
 from .._dtype_utils import complex_dtype_for_real, real_pi
 from .._ndarray_backend import xp
 from ._plane_utils import restore_mean_plane
+from .ls_poisson_pg import divergence_stack, poisson_solve_fft_stack, wrap_phase
 
 
 def algo_ls_poisson(
@@ -37,47 +38,19 @@ def algo_ls_poisson(
 
     N, H, W = phase_wrapped.shape
     dtype = phase_wrapped.dtype
-    pi = real_pi(xp, dtype)
-    two_pi = dtype.type(2) * pi
+    # Wrapped gradients (periodic forward differences).
+    # This is the discrete operator consistent with the FFT Poisson solver
+    # (periodic boundary conditions).
+    gx = wrap_phase(xp.roll(phase_wrapped, -1, axis=2) - phase_wrapped)
+    gy = wrap_phase(xp.roll(phase_wrapped, -1, axis=1) - phase_wrapped)
 
-    # Wrapped gradients (forward differences)
-    gx = xp.diff(phase_wrapped, axis=2, append=phase_wrapped[:, :, -1:])
-    gy = xp.diff(phase_wrapped, axis=1, append=phase_wrapped[:, -1:, :])
+    rhs = divergence_stack(gx, gy)
 
-    # Wrap gradients to [-pi, pi)
-    gx = (gx + pi) % two_pi - pi
-    gy = (gy + pi) % two_pi - pi
-
-    # Divergence of wrapped gradients
-    div_x = xp.diff(gx, axis=2, prepend=gx[:, :, :1])
-    div_y = xp.diff(gy, axis=1, prepend=gy[:, :1, :])
-    div = div_x + div_y
-
-    # Fourier domain Poisson solve (batched)
-    ky = xp.fft.fftfreq(H).astype(dtype, copy=False).reshape(1, H, 1)
-    kx = xp.fft.fftfreq(W).astype(dtype, copy=False).reshape(1, 1, W)
-
-    # Laplacian eigenvalues
-    complex_dtype = complex_dtype_for_real(xp, dtype)
-    complex_dt = xp.dtype(complex_dtype)
-    complex_one = xp.asarray(1j, dtype=complex_dt)
-    two_pi_c = xp.asarray(two_pi, dtype=complex_dt)
-    kx_c = kx.astype(complex_dtype, copy=False)
-    ky_c = ky.astype(complex_dtype, copy=False)
-    denom = (
-        (two_pi_c * complex_one * kx_c) ** 2
-        + (two_pi_c * complex_one * ky_c) ** 2
-    )
-    denom[:, 0, 0] = complex_dt.type(1)  # avoid division by zero
-
-    # FFT over spatial axes only
-    div_hat = xp.fft.fft2(div.astype(complex_dtype, copy=False), axes=(1, 2))
-    phi_hat = div_hat / denom
-    phi_hat[:, 0, 0] = complex_dt.type(0)  # enforce zero-mean solution
-
-    # Inverse FFT
-    phase_unwrapped = xp.fft.ifft2(phi_hat, axes=(1, 2)).real
-    phase_unwrapped = phase_unwrapped.astype(dtype, copy=False)
+    # Solve the discrete Poisson equation in the Fourier domain.
+    # poisson_solve_fft_stack returns an "un-signed" inverse with a positive
+    # denominator; apply -1 to match Laplacian sign convention.
+    phase_unwrapped = poisson_solve_fft_stack(rhs)
+    phase_unwrapped *= dtype.type(-1)
 
     if restore_plane:
         phase_unwrapped = restore_mean_plane(phase_unwrapped, phase_wrapped)

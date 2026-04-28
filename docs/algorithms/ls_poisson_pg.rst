@@ -29,20 +29,44 @@ Derivation
    .. math::
       f = \nabla \cdot g
 
-5. **Periodic Poisson solve** in the Fourier domain:
+   where the discrete periodic divergence used by the FFT solver is:
+
+   .. math::
+      \nabla \cdot g =
+      \left(g_x(x,y) - g_x((x-1)\bmod W,y)\right) +
+      \left(g_y(x,y) - g_y(x,(y-1)\bmod H)\right)
+
+5. **Least-squares / Poisson relation**:
+
+   The least-squares objective solved here is:
+
+   .. math::
+      \phi^\star = \arg\min_{\phi}\sum_{x,y}\lvert \nabla \phi - g \rvert^2
+
+   with normal equation:
+
+   .. math::
+      \nabla^2 \phi = \nabla\cdot g = f
+
+   (This is a PDE, not an ODE.)
+
+6. **Periodic Poisson solve** in the Fourier domain:
 
    .. math::
       \hat{\phi}(k_x,k_y) =
       \frac{\hat{f}(k_x,k_y)}
            {(2-2\cos(2\pi k_x)) + (2-2\cos(2\pi k_y))}
 
+   Here :math:`k_x, k_y` are normalized frequencies from
+   :math:`\mathrm{fftfreq}` (cycles/sample).
+
    The DC term is set to zero to fix the global offset.
 
-6. **Sign convention**:
+7. **Sign convention**:
    The implementation multiplies the result by :math:`-1` to match the
    internal gradient sign convention.
 
-7. **Inverse FFT** returns the real-space unwrapped phase. If the input was
+8. **Inverse FFT** returns the real-space unwrapped phase. If the input was
    2D, the leading singleton dimension is removed.
 
 .. _ls_poisson_pg_refs:
