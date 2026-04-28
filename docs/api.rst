@@ -16,4 +16,3 @@ Algorithms
    xpunwrap.algorithms.algo_ls_poisson
    xpunwrap.algorithms.algo_ls_poisson_pg
    xpunwrap.algorithms.algo_ls_weighted
-   xpunwrap.algorithms.algo_tvl1

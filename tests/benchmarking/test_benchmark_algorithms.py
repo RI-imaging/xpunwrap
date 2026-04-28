@@ -81,10 +81,7 @@ def pytest_sessionstart(session):
 
 @pytest.mark.parametrize(
     "algo_name",
-    sorted(
-        name for name in xpunwrap.algos_available().keys()
-        if name != "algo_tvl1"
-    ),
+    sorted(xpunwrap.algos_available().keys()),
 )
 def test_benchmark_algorithms(
     benchmark,

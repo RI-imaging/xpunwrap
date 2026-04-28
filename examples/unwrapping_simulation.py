@@ -200,7 +200,6 @@ def main(
     ls_plain = xpunwrap.algo_ls_poisson(wrapped_stack, restore_plane)[0]
     ls_periodic = xpunwrap.algo_ls_poisson_pg(wrapped_stack, restore_plane)[0]
     ls_weighted = xpunwrap.algo_ls_weighted(wrapped_stack, restore_plane)[0]
-    tvl1 = xpunwrap.algo_tvl1(wrapped_stack, restore_plane)[0]
     sk_unwrap = image_unwrapped_2d
 
     poisson_plots = [
@@ -212,8 +211,6 @@ def main(
         ("Unwrapped phase map using LS-Poisson periodic-grad (surface)", "surface", ls_periodic, 30.0),
         ("Unwrapped phase map using LS-Weighted", "intensity", ls_weighted),
         ("Unwrapped phase map using LS-Weighted (surface)", "surface", ls_weighted, 30.0),
-        ("Unwrapped phase map using TV-L1", "intensity", tvl1),
-        ("Unwrapped phase map using TV-L1 (surface)", "surface", tvl1, 30.0),
     ]
 
     if image_unwrapped_2d is not None:
@@ -238,7 +235,6 @@ def main(
         diff_ls = ls_plain - sk_unwrap
         diff_ls_periodic = ls_periodic - sk_unwrap
         diff_ls_weighted = ls_weighted - sk_unwrap
-        diff_tvl1 = tvl1 - sk_unwrap
 
         def rmse(a, b):
             return float(np.sqrt(np.mean((a - b) ** 2)))
@@ -248,18 +244,16 @@ def main(
             "LS-Poisson": rmse(ls_plain, sk_unwrap),
             "LS-Poisson periodic-grad": rmse(ls_periodic, sk_unwrap),
             "LS-Weighted": rmse(ls_weighted, sk_unwrap),
-            "TV-L1": rmse(tvl1, sk_unwrap),
         }
 
         # Use global vmin/vmax for unwrapped comparisons; and separate scale for diffs
-        diff_stack = np.stack([diff_ls, diff_ls_periodic, diff_ls_weighted, diff_tvl1], axis=0)
+        diff_stack = np.stack([diff_ls, diff_ls_periodic, diff_ls_weighted], axis=0)
         diff_abs = np.max(np.abs(diff_stack))
 
         algo_entries = [
             ("LS-Poisson", ls_plain, diff_ls, metrics["LS-Poisson"]),
             ("LS-Poisson periodic-grad", ls_periodic, diff_ls_periodic, metrics["LS-Poisson periodic-grad"]),
             ("LS-Weighted", ls_weighted, diff_ls_weighted, metrics["LS-Weighted"]),
-            ("TV-L1", tvl1, diff_tvl1, metrics["TV-L1"]),
         ]
         algo_entries.sort(key=lambda t: t[3])  # sort by RMSE ascending
 

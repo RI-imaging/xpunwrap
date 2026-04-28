@@ -1,7 +1,8 @@
-from .._dtype_utils import complex_dtype_for_real, real_pi
 from .._ndarray_backend import xp
 from ._plane_utils import restore_mean_plane
-from .ls_poisson_pg import divergence_stack, poisson_solve_fft_stack, wrap_phase
+from .ls_poisson_pg import (
+    divergence_stack, poisson_solve_fft_stack, wrap_phase
+)
 
 
 def algo_ls_poisson(

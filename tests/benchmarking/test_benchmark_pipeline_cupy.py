@@ -54,10 +54,7 @@ def _load_and_tile_raw() -> Dict[str, np.ndarray]:
 )
 @pytest.mark.parametrize(
     "algo_name",
-    sorted(
-        name for name in xpunwrap.algos_available().keys()
-        # if name != "algo_tvl1"
-    ),
+    sorted(xpunwrap.algos_available().keys()),
 )
 def test_benchmark_pipeline_cupy(algo_name):
     xpunwrap.set_ndarray_backend("cupy")

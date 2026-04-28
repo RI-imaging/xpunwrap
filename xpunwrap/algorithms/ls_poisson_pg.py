@@ -135,7 +135,8 @@ def divergence_stack(gx, gy):
     xp.ndarray
         Divergence, shape (N, H, W).
     """
-    # Periodic backward-difference divergence (consistent with FFT Poisson solve):
+    # Periodic backward-difference divergence
+    # (consistent with FFT Poisson solve):
     # div g = (g_x - g_x shifted right) + (g_y - g_y shifted down)
     return (
         gx - xp.roll(gx, 1, axis=2)

@@ -43,7 +43,7 @@ axes[0].set_title("Wrapped Phase")
 
 if skimage_out is not None:
     axes[1].imshow(skimage_out.get()[0])
-    axes[1].set_title("Unwrapped\nalgo_skimage_unwrap")
+    axes[1].set_title("Unwrapped (CPU-only)\nalgo_skimage_unwrap")
 else:
     axes[1].text(0.5, 0.5, "skimage missing", ha="center", va="center")
     axes[1].set_title("Unwrapped\nalgo_skimage_unwrap")

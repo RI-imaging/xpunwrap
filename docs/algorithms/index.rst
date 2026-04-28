@@ -2,8 +2,7 @@ Algorithm Reference
 ===================
 
 Here is an overview of the available phase unwrapping algorithms in this
-package. Please note that TVL1 is quite slow and scikit-image's unwrap algorithm
-is not rewritten here, it is just included for convenience.
+package. Scikit-image's unwrap algorithm is not rewritten here, it is just included for convenience.
 It still only works on the CPU.
 
 The links at the bottom of the page will bring you to a line-by-line
@@ -11,9 +10,10 @@ mathematical description of each algorithm.
 
 For an introduction to the Phase Unwrapping problem, see the excellent 1D and 2D
 introductions written by Dr. Munther Gdeisat and Dr. Francis Lilley.
-You can find them online with the titles "One-Dimensional Phase Unwrapping Problem
-By Dr. Munther Gdeisat and Dr. Francis Lilley" and "Two-Dimensional Phase Unwrapping Problem
-By Dr. Munther Gdeisat and Dr. Francis Lilley", respectively.
+You can find them online with the titles:
+
+- "One-Dimensional Phase Unwrapping Problem By Dr. Munther Gdeisat and Dr. Francis Lilley"
+- "Two-Dimensional Phase Unwrapping Problem By Dr. Munther Gdeisat and Dr. Francis Lilley"
 
 
 Overview
@@ -47,11 +47,6 @@ Overview
      - good
      - moderate
      - :ref:`D. C. Ghiglia & L. A. Romero (1994) <ls_weighted_refs>`, :ref:`Ghiglia & Pritt (1998) <ls_weighted_refs>`
-   * - TV-L1 (:func:`xpunwrap.algo_tvl1<xpunwrap.algorithms.algo_tvl1>`)
-     - slow
-     - good
-     - excellent
-     - :ref:`A. Chambolle & T. Pock (2011) <tvl1_refs>`
    * - | Reliability Path (for comparison)
        | (:func:`xpunwrap.algo_skimage_unwrap<xpunwrap.algorithms.algo_skimage_unwrap>`)
      - medium
@@ -65,4 +60,3 @@ Overview
    ls_poisson
    ls_poisson_pg
    ls_weighted
-   tvl1

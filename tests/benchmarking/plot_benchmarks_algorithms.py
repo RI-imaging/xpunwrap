@@ -11,7 +11,7 @@ Produces two dark-themed PNGs:
 Each has three subplots:
     - ls_poisson variants
     - ls_weighted
-    - tvl1
+    - skimage unwrap
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def _group_defs():
     return [
         ("ls_poisson family", ["algo_ls_poisson", "algo_ls_poisson_pg"]),
         ("ls_weighted", ["algo_ls_weighted"]),
-        ("tvl1", ["algo_tvl1"]),
+        ("skimage", ["algo_skimage_unwrap"]),
     ]
 
 

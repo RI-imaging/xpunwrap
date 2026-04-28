@@ -70,7 +70,6 @@ There are several phase unwrapping algorithms to choose from:
 - `algo_ls_poisson`: Least-squares Poisson solver
 - `algo_ls_poisson_pg`: Least-squares unwrapping with periodic gradient enforcement
 - `algo_ls_weighted`: Weighted least-squares unwrapping with border masking
-- `algo_tvl1`: Total Variation L1 unwrapping
 - `algo_skimage_unwrap`: Scikit-Image's Path Following algorithm 
   (Herraez et al.) is included for comparison. It only works on the CPU,
   as it is not suitable for use with GPU.

@@ -7,9 +7,9 @@ Run:
 Reads tests/benchmark_pipeline_cupy.json written by
 tests/test_benchmark_pipeline_cupy.py and outputs
 tests/benchmark_pipeline_cupy.png with subplots:
-    - others (non-weighted, non-tvl1)
+    - others (non-weighted)
     - ls_weighted
-    - tvl1
+    - reserved
 Each subplot has its own y-axis.
 """
 
@@ -98,10 +98,10 @@ def plot(results: List[Dict[str, object]]) -> None:
 
     base_algos = [
         a for a in algos_all
-        if a not in {"algo_ls_weighted", "algo_tvl1"}
+        if a not in {"algo_ls_weighted"}
     ]
     weighted_algos = [a for a in algos_all if a == "algo_ls_weighted"]
-    tvl1_algos = [a for a in algos_all if a == "algo_tvl1"]
+    reserved_algos = []
 
     fig = plt.figure(figsize=(17, 5), facecolor="#181C24")
     widths = [2.2, 1.0, 1.0, 0.6]  # extra space for legend
@@ -120,7 +120,7 @@ def plot(results: List[Dict[str, object]]) -> None:
         weighted_algos,
         "CuPy pipeline (ls_weighted)",
     )
-    _plot_subplot(ax2, results_map, tvl1_algos, "CuPy pipeline (tvl1)")
+    _plot_subplot(ax2, results_map, reserved_algos, "CuPy pipeline (reserved)")
 
     fig.subplots_adjust(
         wspace=0.3,
