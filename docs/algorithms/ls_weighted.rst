@@ -20,6 +20,9 @@ Derivation
       g_x = \mathrm{wrap}(\phi_w(x+1,y) - \phi_w(x,y)), \quad
       g_y = \mathrm{wrap}(\phi_w(x,y+1) - \phi_w(x,y))
 
+   In the current implementation, forward differences are used and the last
+   row/column uses edge replication before wrapping.
+
 3. **Gradient magnitude**:
 
    .. math::
@@ -28,17 +31,24 @@ Derivation
 4. **Weights**:
    Set :math:`w = 0` where :math:`m` exceeds a threshold, otherwise :math:`w=1`.
 
-5. **Weighted divergence**:
+5. **Weighted least-squares objective**:
+
+   .. math::
+      \phi^\star = \arg\min_{\phi}\sum_{x,y} w\,\lvert \nabla \phi - g \rvert^2
+
+6. **Weighted divergence**:
 
    .. math::
       f = \nabla \cdot (w \, g)
 
-6. **Weighted Poisson equation**:
+7. **Weighted Poisson equation (normal equation)**:
 
    .. math::
       \nabla \cdot (w \nabla \phi) = f
 
-7. **Jacobi iterations**:
+   (This is a PDE, not an ODE.)
+
+8. **Jacobi iterations**:
    The solver updates each pixel using its neighbors and the local weights:
 
    .. math::
@@ -48,7 +58,10 @@ Derivation
         w_{y+}\phi_{y+} + w_{y-}\phi_{y-} - f
       }{w_{x+} + w_{x-} + w_{y+} + w_{y-}}
 
-8. **Output**:
+   The :math:`-f` term above reflects the implementation's discrete sign
+   convention.
+
+9. **Output**:
    After a fixed number of iterations, :math:`\phi` is returned. If the input
    was 2D, the leading singleton dimension is removed.
 
