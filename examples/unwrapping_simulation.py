@@ -24,15 +24,24 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import xpunwrap
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 (needed for 3d projection)
 
 
-def _generate_phase(nrx: int = 512, nry: int = 512) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Create the continuous phase image f(x, y) = 20*exp(-0.25*(x^2+y^2)) + 2x + y."""
+def _generate_phase(
+    nrx: int = 512,
+    nry: int = 512,
+    noise_std: float = 0.35,
+    noise_seed: int = 7,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Create the continuous phase image and add optional Gaussian noise."""
     tx = np.linspace(-3.0, 3.0, nrx)
     ty = np.linspace(-3.0, 3.0, nry)
     x, y = np.meshgrid(tx, ty)
     image = 20.0 * np.exp(-0.25 * (x**2 + y**2)) + 2.0 * x + y
+    if noise_std > 0:
+        rng = np.random.default_rng(noise_seed)
+        image = image + rng.normal(loc=0.0, scale=noise_std, size=image.shape)
     return x, y, image
 
 
@@ -77,8 +86,10 @@ def _plot_intensity(
     )
     ax.set_xlabel("x axis")
     ax.set_ylabel("y axis")
-    ax.set_title(title, fontsize=9)
-    fig.colorbar(im, ax=ax, fraction=0.04, pad=0.02)
+    ax.set_title(title, fontsize=9, loc="center", pad=8)
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="4.5%", pad=0.06)
+    fig.colorbar(im, cax=cax)
 
 
 def _plot_surface(
@@ -110,7 +121,7 @@ def _plot_surface(
     ax.set_xlabel("x axis")
     ax.set_ylabel("y axis")
     ax.set_zlabel("Phase in radians")
-    ax.set_title(title, fontsize=9)
+    ax.set_title(title, fontsize=9, loc="center", pad=8)
     ax.set_xlim(x.min(), x.max())
     ax.set_ylim(y.min(), y.max())
     return surf
@@ -120,15 +131,19 @@ def _render_plot_grid(plots, x, y, figure_title: str, save_path: str | None = No
     n_plots = len(plots)
     n_cols = 2
     n_rows = math.ceil(n_plots / n_cols)
-    fig = plt.figure(figsize=(14, 4 * n_rows))
-    fig.suptitle(figure_title, fontsize=16)
-    gs = fig.add_gridspec(n_rows, n_cols, wspace=0.08, hspace=0.5)
+    cell_h = 2.6
+    fig_h = cell_h * n_rows
+    fig_w = cell_h * n_cols * 1.25
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(fig_w, fig_h), squeeze=False)
+    fig.suptitle(figure_title, fontsize=15, y=0.995)
 
     for idx, entry in enumerate(plots):
         title, kind, data, *rest = entry
         row, col = divmod(idx, n_cols)
+        ax = axes[row, col]
         if kind == "surface":
-            ax = fig.add_subplot(gs[row, col], projection="3d")
+            ax.remove()
+            ax = fig.add_subplot(n_rows, n_cols, idx + 1, projection="3d")
             _ = _plot_surface(
                 ax,
                 x,
@@ -139,10 +154,15 @@ def _render_plot_grid(plots, x, y, figure_title: str, save_path: str | None = No
                 clip=rest[1] if len(rest) > 1 else None,
             )
         else:
-            ax = fig.add_subplot(gs[row, col])
             _plot_intensity(fig, ax, x, y, data, title)
 
-    # plt.tight_layout(h_pad=4)
+    # Hide any trailing empty slots when n_plots is odd.
+    for idx in range(n_plots, n_rows * n_cols):
+        r, c = divmod(idx, n_cols)
+        axes[r, c].set_visible(False)
+
+    fig.tight_layout(pad=0.7, w_pad=0.7, h_pad=1.0)
+
     if save_path:
         fig.savefig(save_path, dpi=150, bbox_inches="tight")
     plt.show()
@@ -152,11 +172,13 @@ def main(
     plot_itoh: bool = True,
     plot_poisson: bool = True,
     plot_2d_comparison: bool = True,
+    noise_std: float = 0.35,
+    noise_seed: int = 7,
 ) -> None:
     # Ensure CPU numpy backend for the package algorithms
     xpunwrap.set_ndarray_backend("numpy")
 
-    x, y, image = _generate_phase()
+    x, y, image = _generate_phase(noise_std=noise_std, noise_seed=noise_seed)
 
     image_wrapped = _wrap_phase(image)
 
@@ -199,25 +221,26 @@ def main(
     wrapped_stack = xp.asarray(image_wrapped[None, ...])
     ls_plain = xpunwrap.algo_ls_poisson(wrapped_stack, restore_plane)[0]
     ls_periodic = xpunwrap.algo_ls_poisson_pg(wrapped_stack, restore_plane)[0]
-    ls_weighted = xpunwrap.algo_ls_weighted(wrapped_stack, restore_plane)[0]
-    sk_unwrap = image_unwrapped_2d
-
+    ls_weighted = xpunwrap.algo_ls_weighted(
+        wrapped_stack,
+        restore_plane=restore_plane,
+    )[0]
     poisson_plots = [
         ("Wrapped image displayed as a visual intensity array", "intensity", image_wrapped),
         ("Wrapped image plotted as a surface", "surface", image_wrapped, 70.0, (-np.pi, np.pi)),
-        ("Unwrapped phase map using LS-Poisson", "intensity", ls_plain),
-        ("Unwrapped phase map using LS-Poisson (surface)", "surface", ls_plain, 30.0),
-        ("Unwrapped phase map using LS-Poisson periodic-grad", "intensity", ls_periodic),
-        ("Unwrapped phase map using LS-Poisson periodic-grad (surface)", "surface", ls_periodic, 30.0),
-        ("Unwrapped phase map using LS-Weighted", "intensity", ls_weighted),
-        ("Unwrapped phase map using LS-Weighted (surface)", "surface", ls_weighted, 30.0),
+        ("Unwrapped phase map (LS-Poisson)", "intensity", ls_plain),
+        ("Unwrapped phase map (LS-Poisson, surface)", "surface", ls_plain, 30.0),
+        ("Unwrapped phase map (LS-Poisson periodic-grad)", "intensity", ls_periodic),
+        ("Unwrapped phase map (LS-Poisson periodic-grad, surface)", "surface", ls_periodic, 30.0),
+        ("Unwrapped phase map (LS-Weighted)", "intensity", ls_weighted),
+        ("Unwrapped phase map (LS-Weighted, surface)", "surface", ls_weighted, 30.0),
     ]
 
     if image_unwrapped_2d is not None:
         poisson_plots.extend(
             [
-                ("Unwrapped phase map using the 2D-SRNCP stand-in (skimage)", "intensity", image_unwrapped_2d),
-                ("Unwrapped phase map using the 2D-SRNCP stand-in (surface)", "surface", image_unwrapped_2d, 30.0),
+                ("Unwrapped phase map (2D-SRNCP skimage)", "intensity", image_unwrapped_2d),
+                ("Unwrapped phase map (2D-SRNCP skimage (surface)", "surface", image_unwrapped_2d, 30.0),
             ]
         )
 
@@ -226,24 +249,25 @@ def main(
             poisson_plots,
             x,
             y,
-            "Phase unwrapping comparison (Itoh, LS-Poisson variants, SRNCP stand-in)",
+            "Phase unwrapping comparison (xpUnwrap and Scikit-Image)",
             save_path="unwrapping_simulation_poisson.png",
         )
 
-    # 2D-only comparison and difference maps vs skimage
-    if plot_2d_comparison and sk_unwrap is not None:
-        diff_ls = ls_plain - sk_unwrap
-        diff_ls_periodic = ls_periodic - sk_unwrap
-        diff_ls_weighted = ls_weighted - sk_unwrap
+    # 2D-only comparison and difference maps vs original generated phase
+    if plot_2d_comparison:
+        ref_phase = image
+        diff_ls = ls_plain - ref_phase
+        diff_ls_periodic = ls_periodic - ref_phase
+        diff_ls_weighted = ls_weighted - ref_phase
 
         def rmse(a, b):
             return float(np.sqrt(np.mean((a - b) ** 2)))
 
         # Collect RMSEs for titles
         metrics = {
-            "LS-Poisson": rmse(ls_plain, sk_unwrap),
-            "LS-Poisson periodic-grad": rmse(ls_periodic, sk_unwrap),
-            "LS-Weighted": rmse(ls_weighted, sk_unwrap),
+            "LS-Poisson": rmse(ls_plain, ref_phase),
+            "LS-Poisson periodic-grad": rmse(ls_periodic, ref_phase),
+            "LS-Weighted": rmse(ls_weighted, ref_phase),
         }
 
         # Use global vmin/vmax for unwrapped comparisons; and separate scale for diffs
@@ -255,26 +279,39 @@ def main(
             ("LS-Poisson periodic-grad", ls_periodic, diff_ls_periodic, metrics["LS-Poisson periodic-grad"]),
             ("LS-Weighted", ls_weighted, diff_ls_weighted, metrics["LS-Weighted"]),
         ]
-        algo_entries.sort(key=lambda t: t[3])  # sort by RMSE ascending
+        # Keep LS-Weighted last; sort remaining methods by RMSE.
+        non_weighted = [t for t in algo_entries if t[0] != "LS-Weighted"]
+        non_weighted.sort(key=lambda t: t[3])
+        weighted = [t for t in algo_entries if t[0] == "LS-Weighted"]
+        algo_entries = non_weighted + weighted
 
         two_d_plots = [
+            ("Original generated phase", ref_phase, None, None),
             ("Wrapped image", image_wrapped, None, None),
-            ("Skimage unwrap", sk_unwrap, None, None),
         ]
         for name, img_algo, diff_img, rmse_val in algo_entries:
             two_d_plots.append((name, img_algo, None, None))
-            two_d_plots.append((f"{name} - Skimage (RMSE={rmse_val:.3e})", diff_img, -diff_abs, diff_abs))
+            two_d_plots.append((f"{name} - Original (RMSE={rmse_val:.3e})", diff_img, -diff_abs, diff_abs))
 
         n_plots = len(two_d_plots)
         n_cols = 2
         n_rows = math.ceil(n_plots / n_cols)
-        fig = plt.figure(figsize=(14, 3 * n_rows), layout="constrained")
-        gs = fig.add_gridspec(n_rows, n_cols, wspace=0.08, hspace=0.15)
-        fig.suptitle("2D unwrapped comparisons and differences vs skimage", fontsize=11)
+        cell_h = 2.35
+        fig_h = cell_h * n_rows
+        # Keep subplot cells close to square for imshow(aspect="equal"),
+        # with a small extra width budget for per-axis colorbars.
+        fig_w = cell_h * n_cols * 1.18
+        fig, axes = plt.subplots(
+            n_rows,
+            n_cols,
+            figsize=(fig_w, fig_h),
+            squeeze=False,
+        )
+        fig.suptitle("2D unwrapped comparisons and differences vs original phase", fontsize=11, y=0.995)
 
         for idx, (title, img, vmin, vmax) in enumerate(two_d_plots):
             r, c = divmod(idx, n_cols)
-            ax = fig.add_subplot(gs[r, c])
+            ax = axes[r, c]
             im = ax.imshow(
                 img,
                 extent=(x.min(), x.max(), y.max(), y.min()),
@@ -284,12 +321,16 @@ def main(
                 vmin=vmin,
                 vmax=vmax,
             )
-            ax.set_title(title, fontsize=9)
+            ax.set_title(title, fontsize=9, loc="center", pad=8)
             ax.set_xlabel("x axis")
             ax.set_ylabel("y axis")
-            fig.colorbar(im, ax=ax, fraction=0.04, pad=0.02)
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes("right", size="4.5%", pad=0.06)
+            fig.colorbar(im, cax=cax)
 
-        fig.savefig("unwrapping_2d_comparison.png", dpi=150, bbox_inches="tight")
+        fig.tight_layout(pad=0.7, w_pad=0.7, h_pad=1.0)
+
+        fig.savefig("unwrapping_simulation_comparison.png", dpi=150, bbox_inches="tight")
         plt.show()
 
 

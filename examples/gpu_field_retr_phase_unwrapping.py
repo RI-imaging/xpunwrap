@@ -1,6 +1,5 @@
 """
-Field retrieval (qpretrieve) and
-phase unwrapping (xpunwrap) on GPU.
+Field retrieval (qpretrieve) and phase unwrapping (xpunwrap) on GPU.
 """
 
 import matplotlib.pyplot as plt
@@ -41,17 +40,22 @@ axes = axes.flatten(order="F")
 axes[0].imshow(phase_wrapped.get()[0])
 axes[0].set_title("Wrapped Phase")
 
-if skimage_out is not None:
-    axes[1].imshow(skimage_out.get()[0])
-    axes[1].set_title("Unwrapped (CPU-only)\nalgo_skimage_unwrap")
-else:
-    axes[1].text(0.5, 0.5, "skimage missing", ha="center", va="center")
-    axes[1].set_title("Unwrapped\nalgo_skimage_unwrap")
+# With column-major flattening, bottom-right is index 5.
+skimage_ax = axes[5]
 
-for i, (algo_name, arr) in enumerate(outputs_no_skimage.items(), start=2):
-    ax = axes[i]
+# Fill remaining non-skimage algorithms first (slots 1..4).
+plot_slots = [2, 3, 4]
+for slot, (algo_name, arr) in zip(plot_slots, outputs_no_skimage.items()):
+    ax = axes[slot]
     ax.imshow(arr.get()[0])
     ax.set_title(f"Unwrapped\n{algo_name}")
+
+if skimage_out is not None:
+    skimage_ax.imshow(skimage_out.get()[0])
+    skimage_ax.set_title("Unwrapped (CPU-only)\nalgo_skimage_unwrap")
+else:
+    skimage_ax.text(0.5, 0.5, "skimage missing", ha="center", va="center")
+    skimage_ax.set_title("Unwrapped\nalgo_skimage_unwrap")
 
 for ax in axes:
     ax.set_axis_off()

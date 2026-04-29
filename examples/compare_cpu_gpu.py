@@ -1,10 +1,5 @@
 """
-Compare CPU (skimage unwrap_phase) vs GPU (ls_poisson) on hologram_cell data.
-
-Run:
-    python examples/compare_cpu_gpu.py
-
-Outputs a dark-themed bar chart: examples/compare_cpu_gpu.png
+Compare speed of CPU (skimage unwrap_phase) vs GPU (ls_poisson) on hologram_cell data.
 """
 
 from __future__ import annotations
