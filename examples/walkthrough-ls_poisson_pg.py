@@ -24,12 +24,11 @@ from xpunwrap.algorithms.ls_poisson_pg import (
 )
 from xpunwrap.algorithms._plane_utils import restore_mean_plane
 
+# use numpy for this example for simplicity
 xpunwrap.set_ndarray_backend('numpy')
 xp = xpunwrap.get_ndarray_backend()
 
-
-# load/create the example data, perhaps Fig 9 for good example, and Fig 13 as
-# difficult example
+# load/create the example data
 def _generate_phase(nrx: int = 512, nry: int = 512) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Create the continuous phase image f(x, y) = 20*exp(-0.25*(x^2+y^2)) + 2x + y."""
     tx = np.linspace(-3.0, 3.0, nrx)
@@ -55,6 +54,7 @@ phase_wrapped = np.repeat(arr[None, ...], repeats=10, axis=0)
 #    rhs = divergence_stack(gx, gy)
 #    phi = poisson_solve_fft_stack(rhs)
 #    phase inversion
+#    restore_mean_plane
 
 # Compute forward finite differences of the wrapped phase.
 # Then wrap those gradients back into [-pi, pi) so they remain a valid
@@ -106,7 +106,7 @@ im5 = ax5.imshow(rhs[1])
 fig.colorbar(im5, ax=ax5, fraction=0.046, pad=0.04)
 
 ax6 = fig.add_subplot(nrows, ncols, 6)
-ax6.set_title("Unwrapped phase (with invertion)", fontsize=fontsize)
+ax6.set_title("Unwrapped phase (with inversion)", fontsize=fontsize)
 im6 = ax6.imshow(phi[1])
 fig.colorbar(im6, ax=ax6, fraction=0.046, pad=0.04)
 
@@ -125,5 +125,5 @@ for ax in [ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8]:
     ax.set_yticks([])
 
 plt.tight_layout()
-plt.savefig("poisson_ls_walkthrough.png")
+plt.savefig("walkthrough-ls_poisson_pg.png")
 plt.show()
