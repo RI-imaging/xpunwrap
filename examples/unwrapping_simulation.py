@@ -23,16 +23,16 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 (needed for 3d projection)
 
 
 def _generate_phase(
-    nrx: int = 512,
-    nry: int = 512,
-    noise_std: float = 0.35,
-    noise_seed: int = 7,
+        nrx: int = 512,
+        nry: int = 512,
+        noise_std: float = 0.35,
+        noise_seed: int = 7,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Create the continuous phase image and add optional Gaussian noise."""
     tx = np.linspace(-3.0, 3.0, nrx)
     ty = np.linspace(-3.0, 3.0, nry)
     x, y = np.meshgrid(tx, ty)
-    image = 20.0 * np.exp(-0.25 * (x**2 + y**2)) + 2.0 * x + y
+    image = 20.0 * np.exp(-0.25 * (x ** 2 + y ** 2)) + 2.0 * x + y
     if noise_std > 0:
         rng = np.random.default_rng(noise_seed)
         image = image + rng.normal(loc=0.0, scale=noise_std, size=image.shape)
@@ -69,7 +69,7 @@ def _unwrap_2d(image_wrapped: np.ndarray) -> np.ndarray | None:
 
 
 def _plot_intensity(
-    fig: plt.Figure, ax: plt.Axes, x: np.ndarray, y: np.ndarray, image: np.ndarray, title: str
+        fig: plt.Figure, ax: plt.Axes, x: np.ndarray, y: np.ndarray, image: np.ndarray, title: str
 ) -> None:
     im = ax.imshow(
         image,
@@ -87,13 +87,13 @@ def _plot_intensity(
 
 
 def _plot_surface(
-    ax: plt.Axes,
-    x: np.ndarray,
-    y: np.ndarray,
-    image: np.ndarray,
-    title: str,
-    elev: float = 70.0,
-    clip: tuple[float, float] | None = None,
+        ax: plt.Axes,
+        x: np.ndarray,
+        y: np.ndarray,
+        image: np.ndarray,
+        title: str,
+        elev: float = 70.0,
+        clip: tuple[float, float] | None = None,
 ) -> None:
     # Match MATLAB surf: flip X, flip Z by rows so first row sits at the front.
     x_use = y[::-1, :]
@@ -163,11 +163,11 @@ def _render_plot_grid(plots, x, y, figure_title: str, save_path: str | None = No
 
 
 def main(
-    plot_itoh: bool = True,
-    plot_poisson: bool = True,
-    plot_2d_comparison: bool = True,
-    noise_std: float = 0.35,
-    noise_seed: int = 7,
+        plot_itoh: bool = True,
+        plot_poisson: bool = True,
+        plot_2d_comparison: bool = True,
+        noise_std: float = 0.35,
+        noise_seed: int = 7,
 ) -> None:
     # Ensure CPU numpy backend for the package algorithms
     xpunwrap.set_ndarray_backend("numpy")
@@ -332,4 +332,3 @@ if __name__ == "__main__":
     main(plot_itoh=1,
          plot_poisson=1,
          plot_2d_comparison=1)
-

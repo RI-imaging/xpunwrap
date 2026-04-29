@@ -28,6 +28,7 @@ from xpunwrap.algorithms._plane_utils import restore_mean_plane
 xpunwrap.set_ndarray_backend('numpy')
 xp = xpunwrap.get_ndarray_backend()
 
+
 # load/create the example data
 def _generate_phase(nrx: int = 512, nry: int = 512) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Create the continuous phase image f(x, y) = 20*exp(-0.25*(x^2+y^2)) + 2x + y."""
