@@ -1,8 +1,9 @@
-
+<!-- sphinx-logo-start -->
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/logos/xpunwrap_animated_dark.gif">
   <img src="docs/logos/xpunwrap_animated_light.gif" alt="XPUnwrap">
 </picture>
+<!-- sphinx-logo-end -->
 
 
 # xpUnwrap
@@ -24,7 +25,8 @@ If you don't have a GPU, don't worry, all the code works on the CPU
 The ``xp`` in xpUnwrap references several things: 
  - CuPy's [agnostic code idea](https://docs.cupy.dev/en/stable/user_guide/basic.html#how-to-write-cpu-gpu-agnostic-code)
    where ``cp`` is for cupy and ``np`` is for numpy.
- - the G in GPU and C in CPU
+ - the "G" in GPU and "C" in CPU.
+ - the "Q" from QPI (Quantitative Phase Imaging) e.g., from the sister package [qpretrieve](https://github.com/RI-imaging/qpretrieve). 
 
 
 ## Installation
@@ -50,7 +52,7 @@ In the same group on GitHub, we have two other packages that work seamlessy
 with `xpunwrap`.
 - Phase Retrieval that works on CPU and GPU: 
   [qpretrieve](https://github.com/RI-imaging/qpretrieve)
-- Numerical Refocussing that works on CPU ([and soon GPU](https://github.com/RI-imaging/nrefocus/issues/23)): 
+- Numerical Refocussing that works on CPU and GPU: 
   [nrefocus](https://github.com/RI-imaging/nrefocus)
 - If you are looking for a file format that can also work with the GPU, try 
   out [zarr-python](https://zarr.readthedocs.io/en/stable/user-guide/gpu/) 
@@ -76,8 +78,7 @@ There are several phase unwrapping algorithms to choose from:
 
 ```python
 """
-Field retrieval (qpretrieve) and
-phase unwrapping (xpunwrap) on GPU.
+Field retrieval (qpretrieve) and phase unwrapping (xpunwrap) on GPU.
 """
 
 import matplotlib.pyplot as plt
@@ -118,17 +119,22 @@ axes = axes.flatten(order="F")
 axes[0].imshow(phase_wrapped.get()[0])
 axes[0].set_title("Wrapped Phase")
 
-if skimage_out is not None:
-    axes[1].imshow(skimage_out.get()[0])
-    axes[1].set_title("Unwrapped\nalgo_skimage_unwrap")
-else:
-    axes[1].text(0.5, 0.5, "skimage missing", ha="center", va="center")
-    axes[1].set_title("Unwrapped\nalgo_skimage_unwrap")
+# With column-major flattening, bottom-right is index 5.
+skimage_ax = axes[5]
 
-for i, (algo_name, arr) in enumerate(outputs_no_skimage.items(), start=2):
-    ax = axes[i]
+# Fill remaining non-skimage algorithms first (slots 1..4).
+plot_slots = [2, 3, 4]
+for slot, (algo_name, arr) in zip(plot_slots, outputs_no_skimage.items()):
+    ax = axes[slot]
     ax.imshow(arr.get()[0])
     ax.set_title(f"Unwrapped\n{algo_name}")
+
+if skimage_out is not None:
+    skimage_ax.imshow(skimage_out.get()[0])
+    skimage_ax.set_title("Unwrapped (CPU-only)\nalgo_skimage_unwrap")
+else:
+    skimage_ax.text(0.5, 0.5, "skimage missing", ha="center", va="center")
+    skimage_ax.set_title("Unwrapped\nalgo_skimage_unwrap")
 
 for ax in axes:
     ax.set_axis_off()
@@ -136,10 +142,9 @@ for ax in axes:
 plt.tight_layout(w_pad=4.5)
 # plt.savefig("gpu_field_retr_phase_unwrapping.png")
 plt.show()
-
 ```
 
-![gpu_field_retr_phase_unwrapping.png](examples/gpu_field_retr_phase_unwrapping.png)
+![gpu_field_retr_phase_unwrapping.png](./examples/gpu_field_retr_phase_unwrapping.png)
 
 
 ## Developers

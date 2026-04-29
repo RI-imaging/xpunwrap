@@ -1,17 +1,22 @@
 [project]
 name = "xpunwrap"
-version = "0.1.0"
 description = "Phase unwrapping algorithms which are CPU and GPU agnostic"
+authors = [
+    # In alphabetical order.
+    {name = "Conrad Möckel"},
+    {name = "Eoghan O'Connell"},
+]
+maintainers = [
+    {name = "Eoghan O'Connell", email="eoclives@hotmail.com"},
+]
+
 readme = "README.md"
 license-files = ["LICENSE"]
-requires-python = ">=3.11"
+requires-python = ">=3.11, <4"
 dependencies = [
     "numpy>=2.2.6",
 ]
-
-[tool.setuptools]
-packages = ["xpunwrap"]
-include-package-data = true
+dynamic = ["version"]
 
 [project.optional-dependencies]
 # cupy has several installation options, depending on your CUDA Toolkit version
@@ -35,6 +40,7 @@ examples = [
     "qpretrieve>=0.6.0",
     "zarr>=3.1.0",
     "scikit-image>=0.24.0",
+    "cupy-cuda12x",
 ]
 dev = [
     { include-group = "tests" },
@@ -42,3 +48,11 @@ dev = [
     { include-group = "examples" },
     "flake8>=7.3.0",
 ]
+
+[tool.setuptools]
+packages = ["xpunwrap"]
+include-package-data = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--ignore=benchmarking"
