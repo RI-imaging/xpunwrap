@@ -40,9 +40,16 @@ def cell_phase_data(backend):
     xp = xpunwrap.get_ndarray_backend()
     qpretrieve.set_ndarray_backend(backend)
 
+    if backend == "numpy":
+        fft_interface = qpretrieve.fourier.FFTFilterPyFFTW
+    else:
+        fft_interface = qpretrieve.fourier.FFTFilterCupy
+
     edata = xp.load(data_path / "hologram_cell.npz")
-    holo = qpretrieve.OffAxisHologram(data=edata["data"])
-    bg = qpretrieve.OffAxisHologram(data=edata["bg_data"])
+    holo = qpretrieve.OffAxisHologram(data=edata["data"],
+                                      fft_interface=fft_interface)
+    bg = qpretrieve.OffAxisHologram(data=edata["bg_data"],
+                                    fft_interface=fft_interface)
     holo.run_pipeline(filter_name="disk", filter_size=1 / 2,
                       scale_to_filter=True)
     bg.process_like(holo)
