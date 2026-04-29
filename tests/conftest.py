@@ -41,7 +41,7 @@ def cell_phase_data(backend):
     qpretrieve.set_ndarray_backend(backend)
 
     if backend == "numpy":
-        fft_interface = qpretrieve.fourier.FFTFilterPyFFTW
+        fft_interface = qpretrieve.fourier.FFTFilterNumpy
     else:
         fft_interface = qpretrieve.fourier.FFTFilterCupy
 
