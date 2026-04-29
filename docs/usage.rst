@@ -13,7 +13,7 @@ NumPy backend (CPU):
 
    import xpunwrap as upg
 
-   upg.set_ndarray_backend("numpy")
+   upg.set_ndarray_backend("numpy")  # "numpy" is the default anyway
    xp = upg.get_ndarray_backend()
    xp.array(...)  # will create a numpy array that exists on the CPU
 

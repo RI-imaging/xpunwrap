@@ -2,10 +2,10 @@ Algorithm Reference
 ===================
 
 Here is an overview of the available phase unwrapping algorithms in this
-package. Scikit-image's unwrap algorithm is not rewritten here, it is just included for convenience.
-It still only works on the CPU.
+package. Scikit-image's unwrap algorithm is not rewritten here, it is just included
+for convenience and comparison. It still only works on the CPU.
 
-The links at the bottom of the page will bring you to a line-by-line
+The links at the bottom of the page will bring you to a
 mathematical description of each algorithm.
 
 For an introduction to the Phase Unwrapping problem, see the excellent 1D and 2D
