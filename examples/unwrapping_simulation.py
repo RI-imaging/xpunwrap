@@ -1,20 +1,14 @@
-"""
-Recreate the Figure 9(e–l) simulation from docs/research/twodimensionalphaseunwrapping.pdf.
+﻿"""
+Three figures are produced:
+1) Itoh and skimage unwrap results which recreate the Figure 9(e-l) simulation from
+docs/research/twodimensionalphaseunwrapping.pdf.
+2) xpUnwrap algorithms showing unwrapping of noisey example data
+3) 2D comparisons and difference maps versus the original generated phase.
 
-Generates the synthetic continuous phase image, wraps it, and unwraps it via:
-- Itoh rows→cols (first method)
-- Itoh cols→rows (second method)
-- Optional 2D unwrap using skimage.restoration.unwrap_phase (stand‑in for SRNCP)
-- LS-Poisson (plain and periodic-gradient variants from xpunwrap)
-
-Run:
+To get all three plots, run:
     python examples/unwrapping_simulation.py
 
-Two figures are produced:
-1) Itoh + optional skimage unwrap results.
-2) LS-Poisson variants (same first row as the wrapped data).
 """
-
 from __future__ import annotations
 
 import math
@@ -65,7 +59,7 @@ def _unwrap_cols_then_rows(image_wrapped: np.ndarray) -> np.ndarray:
 
 
 def _unwrap_2d(image_wrapped: np.ndarray) -> np.ndarray | None:
-    """Optional 2D unwrap using skimage (as a stand‑in for MATLAB SRNCP)."""
+    """Optional 2D unwrap using skimage (as a standâ€‘in for MATLAB SRNCP)."""
     try:
         algo = xpunwrap.algos_available()["algo_skimage_unwrap"]
     except Exception as exc:  # pragma: no cover - optional dependency
@@ -338,3 +332,4 @@ if __name__ == "__main__":
     main(plot_itoh=1,
          plot_poisson=1,
          plot_2d_comparison=1)
+
