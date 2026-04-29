@@ -14,7 +14,7 @@ Compare CPU vs GPU
 Poisson LS Algorithm Walkthrough
 --------------------------------
 
-.. fancy_include:: poisson_ls_walkthrough.py
+.. fancy_include:: walkthrough-ls_poisson_pg.py
 
 Unwrapping Simulated Data with Various Algorithms
 -------------------------------------------------

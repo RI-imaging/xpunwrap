@@ -28,6 +28,7 @@ will display the doc string formatted with the first line as a
 heading, a code block with line numbers, and the image file.
 """
 import pathlib
+import ast
 
 from docutils.statemachine import ViewList
 from docutils.parsers.rst import Directive
@@ -40,11 +41,14 @@ class IncludeDirective(Directive):
     optional_arguments = 0
 
     def run(self):
-        path = self.state.document.settings.env.config.fancy_include_path
-        path = pathlib.Path(path)
+        env = self.state.document.settings.env
+        conf_dir = pathlib.Path(env.app.confdir)
+        path = pathlib.Path(env.config.fancy_include_path)
+        if not path.is_absolute():
+            path = (conf_dir / path).resolve()
         full_path = path / self.arguments[0]
 
-        text = full_path.read_text()
+        text = full_path.read_text(encoding="utf-8")
 
         # add reference
         name = full_path.stem
@@ -52,15 +56,27 @@ class IncludeDirective(Directive):
                "",
                ]
 
-        # add docstring
-        source = text.split('"""')
-        doc = source[1].split("\n")
-        doc.insert(1, "~" * len(doc[0]))  # make title heading
-
-        code = source[2].split("\n")
+        # Add module docstring and keep full remaining code.
+        # Using ast avoids truncation when the file contains additional
+        # function/class docstrings after the module-level one.
+        module = ast.parse(text)
+        module_doc = ast.get_docstring(module, clean=False) or ""
+        if module_doc:
+            doc = module_doc.splitlines()
+            if doc:
+                doc.insert(1, "~" * len(doc[0]))  # make title heading
+            doc_end_line = module.body[0].end_lineno or 0
+            code = text.splitlines()[doc_end_line:]
+        else:
+            doc = [full_path.stem]
+            doc.insert(1, "~" * len(doc[0]))
+            code = text.splitlines()
 
         for line in doc:
             rst.append(line)
+        # Ensure subsequent directives are parsed as directives and not as
+        # continuation text of the previous paragraph.
+        rst.append("")
 
         # image
         for ext in [".png", ".jpg"]:
