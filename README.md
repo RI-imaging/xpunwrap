@@ -179,7 +179,7 @@ install `uv` and then run:
 For example, for the optional `cupy-cuda12x`
 
 ```bash
-uv sync --group dev --extra cupy-cuda12x
+uv sync -active --all-groups --all-extras
 ```
 
 Which should install all dev dependencies.
