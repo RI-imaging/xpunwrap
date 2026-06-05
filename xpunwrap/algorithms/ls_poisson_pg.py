@@ -15,8 +15,7 @@ def algo_ls_poisson_pg(
     phase_wrapped : xp.ndarray
         Wrapped phase, shape (H, W) or (N, H, W), values in [-pi, pi).
     restore_plane : bool, optional
-        If True, reintroduce the mean wrapped gradient plane to preserve linear
-        ramps lost in the Poisson null space. Default False.
+        If True, add back the mean wrapped gradient plane. Default False.
 
     Returns
     -------
@@ -30,8 +29,8 @@ def algo_ls_poisson_pg(
 
     References
     ----------
-    .. [1] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
-       Theory, Algorithms, and Software," Wiley, 1998.
+    - D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
+      Theory, Algorithms, and Software," Wiley, 1998.
     """
     input_2d = False
     if phase_wrapped.ndim != 3:
@@ -41,12 +40,12 @@ def algo_ls_poisson_pg(
         else:
             raise ValueError('phase_wrapped.ndim must be 2 or 3')
 
-    # periodic gradients
+    # Periodic gradients.
     gx, gy = wrapped_gradients_stack(phase_wrapped)
     gx, gy = enforce_periodic_gradients_stack(gx, gy)
     rhs = divergence_stack(gx, gy)
     phi = poisson_solve_fft_stack(rhs)
-    # invert in this case
+    # Apply the Laplacian sign convention used elsewhere in the package.
     phi *= -1
     if restore_plane:
         phi = restore_mean_plane(phi, phase_wrapped)
@@ -123,7 +122,7 @@ def enforce_periodic_gradients_stack(gx, gy):
 
 def divergence_stack(gx, gy):
     """
-    Compute divergence of wrapped gradients for a stack.
+    Compute the periodic divergence of a wrapped-gradient stack.
 
     Parameters
     ----------
@@ -135,8 +134,7 @@ def divergence_stack(gx, gy):
     xp.ndarray
         Divergence, shape (N, H, W).
     """
-    # Periodic backward-difference divergence
-    # (consistent with FFT Poisson solve):
+    # Periodic backward-difference divergence used by the FFT Poisson solve.
     # div g = (g_x - g_x shifted right) + (g_y - g_y shifted down)
     return (
         gx - xp.roll(gx, 1, axis=2)

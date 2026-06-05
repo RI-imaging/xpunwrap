@@ -12,16 +12,19 @@ def algo_ls_weighted(
     """
     Weighted least-squares unwrapping with border masking.
 
+    This is a simplified binary-weight Jacobi variant of the weighted LS
+    method from Ghiglia and Romero.
+
     Parameters
     ----------
     phase_wrapped : xp.ndarray
         Wrapped phase, shape (N, H, W) or (H, W).
-        border_thresh : float
+    border_thresh : float
         Gradient magnitude threshold for border detection.
     n_iter : int
         Jacobi iterations for the weighted Poisson solve.
     restore_plane : bool, optional
-        If True, add back mean wrapped gradient plane to preserve global slope.
+        If True, add back the mean wrapped-gradient plane. Default False.
 
     Returns
     -------
@@ -30,11 +33,11 @@ def algo_ls_weighted(
 
     References
     ----------
-    .. [1] D. C. Ghiglia and L. A. Romero, "Robust two-dimensional weighted and
-       unweighted phase unwrapping that uses fast transforms and iterative
-       methods," J. Opt. Soc. Am. A, vol. 11, no. 1, pp. 107-117, 1994.
-    .. [2] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
-       Theory, Algorithms, and Software," Wiley, 1998.
+    - D. C. Ghiglia and L. A. Romero, "Robust two-dimensional weighted and
+      unweighted phase unwrapping that uses fast transforms and iterative
+      methods," J. Opt. Soc. Am. A, vol. 11, no. 1, pp. 107-117, 1994.
+    - D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
+      Theory, Algorithms, and Software," Wiley, 1998.
     """
     input_2d = False
     if phase_wrapped.ndim == 2:
@@ -73,7 +76,7 @@ def _weighted_poisson_solver(
         n_iter=200,
 ):
     """
-    Solve div(w * grad(phi)) = f using Jacobi iterations.
+    Solve div(w * grad(phi)) = f with Jacobi iterations.
 
     Parameters
     ----------
@@ -116,7 +119,7 @@ def _weighted_poisson_solver(
 
 def _weighted_divergence(gx, gy, w):
     """
-    Compute divergence of weighted wrapped gradients.
+    Compute the divergence of the weighted wrapped gradients.
 
     Parameters
     ----------
@@ -133,8 +136,8 @@ def _weighted_divergence(gx, gy, w):
     wx = w * gx
     wy = w * gy
 
-    div_x = xp.diff(wx, axis=2, prepend=wx[:, :, :1])
-    div_y = xp.diff(wy, axis=1, prepend=wy[:, :1, :])
+    div_x = wx - xp.roll(wx, 1, axis=2)
+    div_y = wy - xp.roll(wy, 1, axis=1)
 
     return div_x + div_y
 

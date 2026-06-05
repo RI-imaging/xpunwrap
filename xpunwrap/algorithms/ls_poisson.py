@@ -17,8 +17,7 @@ def algo_ls_poisson(
     phase_wrapped : xp.ndarray
         Wrapped phase, shape (N, H, W) or (H, W), values in [-pi, pi).
     restore_plane : bool, optional
-        If True, add back the average wrapped gradient plane (avoids losing
-        linear ramps inherent to the input). Default False.
+        If True, add back the mean wrapped gradient plane. Default False.
 
     Returns
     -------
@@ -27,8 +26,8 @@ def algo_ls_poisson(
 
     References
     ----------
-    .. [1] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
-       Theory, Algorithms, and Software," Wiley, 1998.
+    - D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
+      Theory, Algorithms, and Software," Wiley, 1998.
     """
     input_2d = False
     if phase_wrapped.ndim == 2:
@@ -39,17 +38,16 @@ def algo_ls_poisson(
 
     N, H, W = phase_wrapped.shape
     dtype = phase_wrapped.dtype
-    # Wrapped gradients (periodic forward differences).
-    # This is the discrete operator consistent with the FFT Poisson solver
-    # (periodic boundary conditions).
+    # Wrapped gradients with periodic forward differences.
+    # This is the discrete operator used by the FFT Poisson solver.
     gx = wrap_phase(xp.roll(phase_wrapped, -1, axis=2) - phase_wrapped)
     gy = wrap_phase(xp.roll(phase_wrapped, -1, axis=1) - phase_wrapped)
 
     rhs = divergence_stack(gx, gy)
 
     # Solve the discrete Poisson equation in the Fourier domain.
-    # poisson_solve_fft_stack returns an "un-signed" inverse with a positive
-    # denominator; apply -1 to match Laplacian sign convention.
+    # The FFT helper returns the positive-denominator form, so apply -1 to
+    # match the Laplacian sign convention here.
     phase_unwrapped = poisson_solve_fft_stack(rhs)
     phase_unwrapped *= dtype.type(-1)
 

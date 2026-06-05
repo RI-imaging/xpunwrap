@@ -1,12 +1,11 @@
 Weighted Least-Squares (algo_ls_weighted)
 =========================================
 
-This method extends the least-squares Poisson approach by down-weighting
-locations that are likely to contain phase discontinuities. It detects large
-wrapped gradients, treats them as unreliable, and assigns smaller weights so
-they contribute less to the solution. The resulting weighted Poisson solve
-produces a smoother, more robust unwrapped phase in the presence of sharp
-jumps or noisy regions, at the cost of a slower iterative solve. [1] [2]
+This is a simplified weighted least-squares unwrap. It masks large wrapped
+gradients, then solves a weighted Poisson equation with Jacobi iterations.
+The code here uses binary weights and periodic neighbour rolls, so it matches
+the implementation in this repository rather than a full robust solver from
+the literature. See Ghiglia and Romero (1994) and Ghiglia and Pritt (1998).
 
 API: :func:`xpunwrap.algo_ls_weighted<xpunwrap.algorithms.algo_ls_weighted>`
 
@@ -20,8 +19,11 @@ Derivation
       g_x = \mathrm{wrap}(\phi_w(x+1,y) - \phi_w(x,y)), \quad
       g_y = \mathrm{wrap}(\phi_w(x,y+1) - \phi_w(x,y))
 
-   In the current implementation, forward differences are used and the last
-   row/column uses edge replication before wrapping.
+   In the code, forward differences are used and the last row/column is
+   repeated before wrapping.
+
+   The weighted divergence and Jacobi updates both use periodic neighbour
+   access.
 
 3. **Gradient magnitude**:
 
@@ -49,7 +51,7 @@ Derivation
    (This is a PDE, not an ODE.)
 
 8. **Jacobi iterations**:
-   The solver updates each pixel using its neighbors and the local weights:
+   The solver updates each pixel from its neighbours and local weights:
 
    .. math::
       \phi^{k+1} =
@@ -61,6 +63,8 @@ Derivation
    The :math:`-f` term above reflects the implementation's discrete sign
    convention.
 
+   The update uses periodic neighbour rolls in code.
+
 9. **Output**:
    After a fixed number of iterations, :math:`\phi` is returned. If the input
    was 2D, the leading singleton dimension is removed.
@@ -69,8 +73,8 @@ Derivation
 
 References
 ----------
-.. [1] D. C. Ghiglia and L. A. Romero, "Robust two-dimensional weighted and
-   unweighted phase unwrapping that uses fast transforms and iterative
-   methods," J. Opt. Soc. Am. A, vol. 11, no. 1, pp. 107-117, 1994.
-.. [2] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
-   Theory, Algorithms, and Software," Wiley, 1998.
+- D. C. Ghiglia and L. A. Romero, "Robust two-dimensional weighted and
+  unweighted phase unwrapping that uses fast transforms and iterative methods,"
+  J. Opt. Soc. Am. A, vol. 11, no. 1, pp. 107-117, 1994.
+- D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping: Theory,
+  Algorithms, and Software," Wiley, 1998.

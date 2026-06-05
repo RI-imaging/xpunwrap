@@ -190,3 +190,9 @@ Which should install all dev dependencies.
 Here are several phase unwrapping packages that exist in Python:
 - https://github.com/blakedewey/phase_unwrap (CPU)
 - Scikit-image (CPU)
+
+## Use of AI
+
+This package used Codex (mostly 5.4-Mini) to translate the source citations
+(see documentation website) into Python code, as well as the mathematical derivations.
+All code and documents were then human-verified and tested against known input data.

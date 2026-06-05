@@ -1,15 +1,9 @@
 Least-Squares Poisson (algo_ls_poisson)
 =======================================
 
-This is the classic
-FFT-based least-squares approach and is a good default when the wrapped phase
-is reasonably clean and you want a fast, stable solution. [1]
-
-This algorithm looks for the smooth phase field whose gradients best
-match the wrapped gradients
-measured from the data. In practice, it computes wrapped forward differences,
-forms their divergence, and solves a Poisson equation to recover a globally
-consistent phase (up to an arbitrary constant offset).
+This is the standard FFT-based least-squares phase unwrap. It computes wrapped
+forward differences, forms their divergence, and solves a periodic Poisson
+equation for the phase field. See Ghiglia and Pritt (1998).
 
 API: :func:`xpunwrap.algo_ls_poisson<xpunwrap.algorithms.algo_ls_poisson>`
 
@@ -69,5 +63,5 @@ Derivation
 
 References
 ----------
-.. [1] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
-   Theory, Algorithms, and Software," Wiley, 1998.
+- D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping: Theory,
+  Algorithms, and Software," Wiley, 1998.

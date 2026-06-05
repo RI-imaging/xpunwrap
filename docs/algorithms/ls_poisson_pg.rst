@@ -1,12 +1,9 @@
 Least-Squares with Periodic Gradients (algo_ls_poisson_pg)
 =====================================================================
 
-This variant follows the same least-squares Poisson formulation as the
-standard method, but explicitly enforces periodic boundary conditions on the
-wrapped gradients before solving. That makes the formulation consistent with
-periodic data or FFT-based solvers that assume wrap-around behavior at the
-boundaries. The result is still a global least-squares solution, but one whose
-gradients are periodic across the image edges. [1]
+This variant uses the same least-squares Poisson solve as the standard method,
+but it forces the wrapped gradients to be periodic before the FFT step. See
+Ghiglia and Pritt (1998).
 
 API: :func:`xpunwrap.algo_ls_poisson_pg<xpunwrap.algorithms.algo_ls_poisson_pg>`
 
@@ -73,5 +70,5 @@ Derivation
 
 References
 ----------
-.. [1] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
-   Theory, Algorithms, and Software," Wiley, 1998.
+- D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping: Theory,
+  Algorithms, and Software," Wiley, 1998.
