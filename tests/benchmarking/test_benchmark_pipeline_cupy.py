@@ -19,6 +19,7 @@ from typing import Dict, List
 import numpy as np
 import pytest
 import qpretrieve
+from qpretrieve.fourier import FFTFilterCupy
 
 import xpunwrap
 
@@ -75,8 +76,14 @@ def test_benchmark_pipeline_cupy(algo_name):
     _synchronize(xp)
     holo_gpu = xp.asarray(raw["data"])
     bg_gpu = xp.asarray(raw["bg"])
-    holo_obj = qpretrieve.OffAxisHologram(data=holo_gpu)
-    bg_obj = qpretrieve.OffAxisHologram(data=bg_gpu)
+    holo_obj = qpretrieve.OffAxisHologram(
+        data=holo_gpu,
+        fft_interface=FFTFilterCupy,
+    )
+    bg_obj = qpretrieve.OffAxisHologram(
+        data=bg_gpu,
+        fft_interface=FFTFilterCupy,
+    )
     holo_obj.run_pipeline(
         filter_name="disk",
         filter_size=1 / 2,
@@ -97,8 +104,14 @@ def test_benchmark_pipeline_cupy(algo_name):
         upload_times.append((time.perf_counter() - start) * 1000.0)
 
         start = time.perf_counter()
-        holo_obj = qpretrieve.OffAxisHologram(data=holo_gpu)
-        bg_obj = qpretrieve.OffAxisHologram(data=bg_gpu)
+        holo_obj = qpretrieve.OffAxisHologram(
+            data=holo_gpu,
+            fft_interface=FFTFilterCupy,
+        )
+        bg_obj = qpretrieve.OffAxisHologram(
+            data=bg_gpu,
+            fft_interface=FFTFilterCupy,
+        )
         holo_obj.run_pipeline(
             filter_name="disk",
             filter_size=1 / 2,
