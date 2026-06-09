@@ -1,5 +1,5 @@
-from .._dtype_utils import real_pi
 from .._ndarray_backend import xp
+from ._ls_common import wrap_phase
 from ._plane_utils import restore_mean_plane
 
 
@@ -18,7 +18,7 @@ def algo_ls_weighted(
     Parameters
     ----------
     phase_wrapped : xp.ndarray
-        Wrapped phase, shape (N, H, W) or (H, W).
+        Wrapped phase, shape (H, W) or (N, H, W), values in [-pi, pi).
     border_thresh : float
         Gradient magnitude threshold for border detection.
     n_iter : int
@@ -28,7 +28,7 @@ def algo_ls_weighted(
 
     Returns
     -------
-    xp.ndarray
+    phase_unwrapped : xp.ndarray
         Unwrapped phase, same shape as input.
 
     References
@@ -46,17 +46,12 @@ def algo_ls_weighted(
     elif phase_wrapped.ndim != 3:
         raise ValueError("phase_wrapped must have shape (H, W) or (N, H, W).")
 
-    dtype = phase_wrapped.dtype
-    pi = real_pi(xp, dtype)
-    two_pi = dtype.type(2) * pi
+    gx = wrap_phase(xp.diff(phase_wrapped, axis=2,
+                            append=phase_wrapped[:, :, -1:]))
+    gy = wrap_phase(xp.diff(phase_wrapped, axis=1,
+                            append=phase_wrapped[:, -1:, :]))
 
-    gx = xp.diff(phase_wrapped, axis=2, append=phase_wrapped[:, :, -1:])
-    gy = xp.diff(phase_wrapped, axis=1, append=phase_wrapped[:, -1:, :])
-
-    gx = (gx + pi) % two_pi - pi
-    gy = (gy + pi) % two_pi - pi
-
-    w = _phase_border_weights(phase_wrapped, thresh=border_thresh)
+    w = _phase_border_weights(gx, gy, thresh=border_thresh)
 
     f = _weighted_divergence(gx, gy, w)
 
@@ -142,14 +137,14 @@ def _weighted_divergence(gx, gy, w):
     return div_x + div_y
 
 
-def _phase_border_weights(wrapped, thresh=1.5):
+def _phase_border_weights(gx, gy, thresh=1.5):
     """
     Detect phase borders using gradient magnitude.
 
     Parameters
     ----------
-    wrapped : xp.ndarray
-        Wrapped phase, shape (N, H, W).
+    gx, gy : xp.ndarray
+        Wrapped gradients, shape (N, H, W).
     thresh : float
         Gradient magnitude threshold.
 
@@ -158,16 +153,6 @@ def _phase_border_weights(wrapped, thresh=1.5):
     xp.ndarray
         Binary weights, shape (N, H, W).
     """
-    dtype = wrapped.dtype
-    pi = real_pi(xp, dtype)
-    two_pi = dtype.type(2) * pi
-
-    gx = xp.diff(wrapped, axis=2, append=wrapped[:, :, -1:])
-    gy = xp.diff(wrapped, axis=1, append=wrapped[:, -1:, :])
-
-    gx = (gx + pi) % two_pi - pi
-    gy = (gy + pi) % two_pi - pi
-
     grad_mag = xp.sqrt(gx ** 2 + gy ** 2)
 
     w = xp.ones_like(grad_mag)

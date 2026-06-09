@@ -1,8 +1,6 @@
 from .._ndarray_backend import xp
+from ._ls_common import divergence_stack, poisson_solve_fft_stack, wrap_phase
 from ._plane_utils import restore_mean_plane
-from .ls_poisson_pg import (
-    divergence_stack, poisson_solve_fft_stack, wrap_phase
-)
 
 
 def algo_ls_poisson(
@@ -15,7 +13,7 @@ def algo_ls_poisson(
     Parameters
     ----------
     phase_wrapped : xp.ndarray
-        Wrapped phase, shape (N, H, W) or (H, W), values in [-pi, pi).
+        Wrapped phase, shape (H, W) or (N, H, W), values in [-pi, pi).
     restore_plane : bool, optional
         If True, add back the mean wrapped gradient plane. Default False.
 
@@ -36,7 +34,6 @@ def algo_ls_poisson(
     elif phase_wrapped.ndim != 3:
         raise ValueError("phase_wrapped must have shape (H, W) or (N, H, W).")
 
-    N, H, W = phase_wrapped.shape
     dtype = phase_wrapped.dtype
     # Wrapped gradients with periodic forward differences.
     # This is the discrete operator used by the FFT Poisson solver.

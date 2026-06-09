@@ -43,22 +43,6 @@ class NDArrayBackend:
     def is_cupy(self):
         return self._xp.__name__.startswith("cupy")
 
-    def assert_numpy(self):
-        assert self.is_numpy(), (
-            "ndarray_backend is not 'numpy'. "
-            "To use 'numpy', run `xpunwrap.set_ndarray_backend('numpy')`."
-        )
-
-    def assert_cupy(self):
-        assert self.is_cupy(), (
-            "ndarray_backend is not 'cupy'. "
-            "To use 'cupy', run `xpunwrap.set_ndarray_backend('cupy')`."
-        )
-
-
-class NDArrayBackendWarning(UserWarning):
-    pass
-
 
 # Export a single global proxy instance
 xp = NDArrayBackend()

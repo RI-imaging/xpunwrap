@@ -1,10 +1,9 @@
-from __future__ import annotations
-
 """
 Thin wrapper around ``skimage.restoration.unwrap_phase`` to match the project's
 algorithm interface.
 """
 
+from __future__ import annotations
 from typing import Any
 
 from .._ndarray_backend import xp
@@ -42,19 +41,18 @@ def algo_skimage_unwrap(
       converted back to the active backend on return.
     """
     if phase_wrapped.ndim == 2:
-        return _unwrap_single(phase_wrapped, restore_plane, **kwargs)
+        return _unwrap_single(phase_wrapped, **kwargs)
     if phase_wrapped.ndim != 3:
         raise ValueError("phase_wrapped must have shape (H, W) or (N, H, W).")
 
     out = []
     for i in range(phase_wrapped.shape[0]):
-        out.append(_unwrap_single(phase_wrapped[i], restore_plane, **kwargs))
+        out.append(_unwrap_single(phase_wrapped[i], **kwargs))
     return xp.stack(out, axis=0)
 
 
 def _unwrap_single(
     arr: xp.ndarray,
-    restore_plane: bool,
     **kwargs: Any,
 ) -> xp.ndarray:
     if xp.is_cupy():
@@ -73,11 +71,8 @@ def _unwrap_single(
             "`pip install xpunwrap[examples]`."
         ) from err
 
+    # scikit-image's unwrap_phase already returns a ramp-preserved solution,
+    # so there is no separate plane to restore (see the docstring note).
     np_unwrapped = sk_unwrap(np_arr, **kwargs)
-
-    if restore_plane:
-        # scikit-image unwrap_phase already returns a ramp-preserved solution;
-        # restoring again would double-count the plane.
-        pass
 
     return xp.asarray(np_unwrapped) if xp.is_cupy() else np_unwrapped

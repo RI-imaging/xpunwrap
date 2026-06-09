@@ -1,5 +1,5 @@
-from .._dtype_utils import complex_dtype_for_real, real_pi
 from .._ndarray_backend import xp
+from ._ls_common import divergence_stack, poisson_solve_fft_stack, wrap_phase
 from ._plane_utils import restore_mean_plane
 
 
@@ -19,8 +19,8 @@ def algo_ls_poisson_pg(
 
     Returns
     -------
-    xp.ndarray
-        Unwrapped phase with the same shape as the input.
+    phase_unwrapped : xp.ndarray
+        Unwrapped phase, same shape as input.
 
     Notes
     -----
@@ -33,45 +33,27 @@ def algo_ls_poisson_pg(
       Theory, Algorithms, and Software," Wiley, 1998.
     """
     input_2d = False
-    if phase_wrapped.ndim != 3:
-        if phase_wrapped.ndim == 2:
-            input_2d = True
-            phase_wrapped = xp.expand_dims(phase_wrapped, axis=0)
-        else:
-            raise ValueError('phase_wrapped.ndim must be 2 or 3')
+    if phase_wrapped.ndim == 2:
+        input_2d = True
+        phase_wrapped = xp.expand_dims(phase_wrapped, axis=0)
+    elif phase_wrapped.ndim != 3:
+        raise ValueError("phase_wrapped must have shape (H, W) or (N, H, W).")
 
     # Periodic gradients.
     gx, gy = wrapped_gradients_stack(phase_wrapped)
     gx, gy = enforce_periodic_gradients_stack(gx, gy)
     rhs = divergence_stack(gx, gy)
+
+    # The FFT helper returns the positive-denominator form, so apply -1 to
+    # match the Laplacian sign convention here.
     phi = poisson_solve_fft_stack(rhs)
-    # Apply the Laplacian sign convention used elsewhere in the package.
-    phi *= -1
+    phi *= phi.dtype.type(-1)
+
     if restore_plane:
         phi = restore_mean_plane(phi, phase_wrapped)
     if input_2d:
         phi = phi[0]
     return phi
-
-
-def wrap_phase(x):
-    """
-    Wrap phase to [-pi, pi).
-
-    Parameters
-    ----------
-    x : xp.ndarray
-        Input phase values.
-
-    Returns
-    -------
-    xp.ndarray
-        Wrapped values in [-pi, pi).
-    """
-    dtype = x.dtype
-    pi = real_pi(xp, dtype)
-    two_pi = dtype.type(2) * pi
-    return (x + pi) % two_pi - pi
 
 
 def wrapped_gradients_stack(phi):
@@ -118,62 +100,3 @@ def enforce_periodic_gradients_stack(gx, gy):
     gy[:, -1, :] = gy[:, 0, :]
 
     return gx, gy
-
-
-def divergence_stack(gx, gy):
-    """
-    Compute the periodic divergence of a wrapped-gradient stack.
-
-    Parameters
-    ----------
-    gx, gy : xp.ndarray
-        Gradient stacks, shape (N, H, W).
-
-    Returns
-    -------
-    xp.ndarray
-        Divergence, shape (N, H, W).
-    """
-    # Periodic backward-difference divergence used by the FFT Poisson solve.
-    # div g = (g_x - g_x shifted right) + (g_y - g_y shifted down)
-    return (
-        gx - xp.roll(gx, 1, axis=2)
-        + gy - xp.roll(gy, 1, axis=1)
-    )
-
-
-def poisson_solve_fft_stack(rhs):
-    """
-    Solve the periodic Poisson equation in the Fourier domain.
-
-    Parameters
-    ----------
-    rhs : xp.ndarray
-        Right-hand side, shape (N, H, W).
-
-    Returns
-    -------
-    xp.ndarray
-        Solution, shape (N, H, W).
-    """
-    N, H, W = rhs.shape
-    dtype = rhs.dtype
-    pi = real_pi(xp, dtype)
-    two = dtype.type(2)
-
-    ky = xp.fft.fftfreq(H).astype(dtype, copy=False).reshape(1, H, 1)
-    kx = xp.fft.fftfreq(W).astype(dtype, copy=False).reshape(1, 1, W)
-
-    denom = (two - two * xp.cos(two * pi * kx)) + \
-            (two - two * xp.cos(two * pi * ky))
-
-    denom[:, 0, 0] = dtype.type(1)
-
-    complex_dtype = complex_dtype_for_real(xp, dtype)
-    complex_dt = xp.dtype(complex_dtype)
-    rhs_hat = xp.fft.fft2(rhs.astype(complex_dtype, copy=False), axes=(-2, -1))
-    phi_hat = rhs_hat / denom
-    phi_hat[:, 0, 0] = complex_dt.type(0)
-
-    out = xp.real(xp.fft.ifft2(phi_hat, axes=(-2, -1)))
-    return out.astype(dtype, copy=False)
