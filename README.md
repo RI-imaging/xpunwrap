@@ -195,4 +195,5 @@ Here are several phase unwrapping packages that exist in Python:
 
 This package used Codex (mostly 5.4-Mini) to translate the source citations
 (see documentation website) into Python code, as well as the mathematical derivations.
-All code and documents were then human-verified and tested against known input data.
+All code and documents were then human-verified and verified with Claude Opus,
+and tested against known input data.
