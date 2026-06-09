@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = ">=3.11"
+requires-python = ">=3.11, <4"
 resolution-markers = [
     "python_full_version >= '3.12'",
     "python_full_version < '3.12'",
@@ -1148,16 +1148,16 @@ wheels = [
 
 [[package]]
 name = "qpretrieve"
-version = "0.6.0"
+version = "0.6.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
     { name = "scikit-image" },
     { name = "scipy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3e/c9/175eebf3b3f363dd333c23a21758f85983ee32e21ebc512fa09375f5b35f/qpretrieve-0.6.0.tar.gz", hash = "sha256:4e4894407e56f37e3605a289f7ec8487f700cc501001bddc481196351be71ec8", size = 3108115, upload-time = "2026-01-19T06:50:46.093Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/89/87/14717491035c64b2c22e6ab9b52472b89ea459f05cbf2b0703197bd68e6e/qpretrieve-0.6.1.tar.gz", hash = "sha256:e19cf264f1be0ed5e2c0e7708ee4b9e3cad776df9780ac072a542154948c66ab", size = 3110255, upload-time = "2026-04-14T09:21:10.27Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f8/39/51f8b31f125dad71161f7adf63eed06f6a33bb2e8407942b925376e3e02b/qpretrieve-0.6.0-py3-none-any.whl", hash = "sha256:6ec60bfe98eec651e06dcc07c21ca1249d1af2c8955ec49479254db2b00a33f1", size = 24872, upload-time = "2026-01-19T06:50:44.716Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/f2/5b8bc1e31ded1f84c59dc2173e48fd6db589bdb8ebd9d04332159fd76ffc/qpretrieve-0.6.1-py3-none-any.whl", hash = "sha256:64be0b37030799bf72c188909777c8ef9338d603f788065cd2bee08520c26af2", size = 25867, upload-time = "2026-04-14T09:21:08.597Z" },
 ]
 
 [package.optional-dependencies]
@@ -1520,7 +1520,6 @@ wheels = [
 
 [[package]]
 name = "xpunwrap"
-version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "numpy" },
@@ -1533,12 +1532,13 @@ cupy-cuda12x = [
 cupy-cuda13x = [
     { name = "cupy-cuda13x" },
 ]
-skimage = [
+scikit-image = [
     { name = "scikit-image" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "cupy-cuda12x" },
     { name = "flake8" },
     { name = "matplotlib" },
     { name = "myst-parser" },
@@ -1558,6 +1558,7 @@ docs = [
     { name = "sphinx-rtd-theme" },
 ]
 examples = [
+    { name = "cupy-cuda12x" },
     { name = "matplotlib" },
     { name = "qpretrieve" },
     { name = "scikit-image" },
@@ -1574,19 +1575,20 @@ requires-dist = [
     { name = "cupy-cuda12x", marker = "extra == 'cupy-cuda12x'" },
     { name = "cupy-cuda13x", marker = "extra == 'cupy-cuda13x'" },
     { name = "numpy", specifier = ">=2.2.6" },
-    { name = "scikit-image", marker = "extra == 'skimage'", specifier = ">=0.20.0" },
+    { name = "scikit-image", marker = "extra == 'scikit-image'", specifier = ">=0.20.0" },
 ]
-provides-extras = ["cupy-cuda12x", "cupy-cuda13x", "skimage"]
+provides-extras = ["cupy-cuda12x", "cupy-cuda13x", "scikit-image"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "cupy-cuda12x" },
     { name = "flake8", specifier = ">=7.3.0" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "myst-parser", specifier = ">=2.0" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "pytest-benchmark", specifier = ">=5.2.3" },
     { name = "qpretrieve", specifier = ">=0.6.0" },
-    { name = "qpretrieve", extras = ["fftw"], specifier = ">=0.6.0" },
+    { name = "qpretrieve", extras = ["fftw"], specifier = ">=0.6.1" },
     { name = "scikit-image", specifier = ">=0.24.0" },
     { name = "sphinx", specifier = ">=7.2" },
     { name = "sphinx-rtd-theme", specifier = ">=2.0" },
@@ -1598,6 +1600,7 @@ docs = [
     { name = "sphinx-rtd-theme", specifier = ">=2.0" },
 ]
 examples = [
+    { name = "cupy-cuda12x" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "qpretrieve", specifier = ">=0.6.0" },
     { name = "scikit-image", specifier = ">=0.24.0" },
@@ -1606,7 +1609,7 @@ examples = [
 tests = [
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "pytest-benchmark", specifier = ">=5.2.3" },
-    { name = "qpretrieve", extras = ["fftw"], specifier = ">=0.6.0" },
+    { name = "qpretrieve", extras = ["fftw"], specifier = ">=0.6.1" },
 ]
 
 [[package]]

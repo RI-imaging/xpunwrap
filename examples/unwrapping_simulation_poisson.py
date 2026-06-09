@@ -1,4 +1,5 @@
-"""
+"""LS-Poisson variants
+
 Generate only the LS-Poisson variants figure from unwrapping_simulation.
 Outputs: unwrapping_comparison.png
 """

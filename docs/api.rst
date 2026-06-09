@@ -13,6 +13,7 @@ Algorithms
    :toctree: generated
    :nosignatures:
 
-   xpunwrap.algorithms.algo_ls_poisson
-   xpunwrap.algorithms.algo_ls_poisson_pg
-   xpunwrap.algorithms.algo_ls_weighted
+   algorithms.algo_ls_poisson
+   algorithms.algo_ls_poisson_pg
+   algorithms.algo_ls_weighted
+   algorithms.algo_skimage_unwrap

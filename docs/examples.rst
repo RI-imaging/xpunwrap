@@ -22,9 +22,9 @@ Unwrapping Simulated Data with Various Algorithms
 Download base simulation script:
 :download:`unwrapping_simulation.py <../examples/unwrapping_simulation.py>`
 
-.. fancy_include:: unwrapping_simulation_itoh.py
-
 .. fancy_include:: unwrapping_simulation_poisson.py
+
+.. fancy_include:: unwrapping_simulation_itoh.py
 
 .. fancy_include:: unwrapping_simulation_comparison.py
 

@@ -11,18 +11,18 @@ NumPy backend (CPU):
 
 .. code-block:: python
 
-   import xpunwrap as upg
+   import xpunwrap
 
-   upg.set_ndarray_backend("numpy")  # "numpy" is the default anyway
-   xp = upg.get_ndarray_backend()
+   xpunwrap.set_ndarray_backend("numpy")  # "numpy" is the default anyway
+   xp = xpunwrap.get_ndarray_backend()
    xp.array(...)  # will create a numpy array that exists on the CPU
 
 CuPy backend (GPU):
 
 .. code-block:: python
 
-   import xpunwrap as upg
+   import xpunwrap
 
-   upg.set_ndarray_backend("cupy")
-   xp = upg.get_ndarray_backend()
+   xpunwrap.set_ndarray_backend("cupy")
+   xp = xpunwrap.get_ndarray_backend()
    xp.array(...)  # will create a cupy array that exists on the GPU

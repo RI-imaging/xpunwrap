@@ -1,5 +1,9 @@
-"""
+"""Itoh and Skimage unwrapping
+
 Generate only the Itoh/skimage comparison figure from unwrapping_simulation.
+This graph is a reproduction of the graph in “Two-Dimensional Phase Unwrapping
+Problem By Dr. Munther Gdeisat and Dr. Francis Lilley”.
+
 Outputs: unwrapping_itoh.png
 """
 

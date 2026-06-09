@@ -222,6 +222,7 @@ __marimo__/
 
 # Sphinx documentation
 docs/_build/
+docs/generated/
 temp_*.zip
 
 # ai

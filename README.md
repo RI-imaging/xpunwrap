@@ -20,7 +20,7 @@ This package aims to make GPU-based phase unwrapping in Python seamless.
 If you don't have a GPU, don't worry, all the code works on the CPU
 (albeit slower).
 
-### What does "xp" stand for?
+## What does "xp" stand for?
 
 The ``xp`` in xpUnwrap references several things: 
  - CuPy's [agnostic code idea](https://docs.cupy.dev/en/stable/user_guide/basic.html#how-to-write-cpu-gpu-agnostic-code)

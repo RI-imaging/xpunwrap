@@ -48,15 +48,20 @@ Derivation
 
    .. math::
       \hat{\phi}(k_x,k_y) =
-      -\frac{\hat{\nabla \cdot g}(k_x,k_y)}
-            {(2-2\cos(2\pi k_x)) + (2-2\cos(2\pi k_y))}
+      \frac{\hat{\nabla \cdot g}(k_x,k_y)}
+           {(2-2\cos(2\pi k_x)) + (2-2\cos(2\pi k_y))}
 
    Here :math:`k_x, k_y` are normalized frequencies from
    :math:`\mathrm{fftfreq}` (cycles/sample).
 
    The DC component is set to zero to enforce a zero-mean solution.
 
-7. **Inverse FFT** yields :math:`\phi` in real space. If the input was 2D,
+7. **Sign convention**:
+   The shared FFT solver returns the positive-denominator solution, so the
+   implementation multiplies the result by :math:`-1` to match the discrete
+   Laplacian sign convention.
+
+8. **Inverse FFT** yields :math:`\phi` in real space. If the input was 2D,
    the leading singleton dimension is removed.
 
 .. _ls_poisson_refs:
