@@ -44,7 +44,14 @@ The ``xp`` in xpUnwrap references several things:
 
     # to also use skimage's unwrap (CPU-only):
     pip install xpunwrap[scikit-image]
+
+    # for faster CPU Fourier transforms via pyFFTW:
+    pip install xpunwrap[FFTW]
 ```
+
+On the CPU backend, `xpunwrap` automatically uses pyFFTW for the Fourier
+transforms in the least-squares solvers when it is installed, falling back to
+NumPy otherwise. On the GPU backend, CuPy's FFT is always used.
 
 ## Compatible Phase Retrieval and Numerical Refocusing GPU packages
 

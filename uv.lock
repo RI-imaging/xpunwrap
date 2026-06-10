@@ -1532,6 +1532,9 @@ cupy-cuda12x = [
 cupy-cuda13x = [
     { name = "cupy-cuda13x" },
 ]
+fftw = [
+    { name = "pyfftw" },
+]
 scikit-image = [
     { name = "scikit-image" },
 ]
@@ -1575,9 +1578,10 @@ requires-dist = [
     { name = "cupy-cuda12x", marker = "extra == 'cupy-cuda12x'" },
     { name = "cupy-cuda13x", marker = "extra == 'cupy-cuda13x'" },
     { name = "numpy", specifier = ">=2.2.6" },
+    { name = "pyfftw", marker = "extra == 'fftw'", specifier = ">=0.15.0" },
     { name = "scikit-image", marker = "extra == 'scikit-image'", specifier = ">=0.20.0" },
 ]
-provides-extras = ["cupy-cuda12x", "cupy-cuda13x", "scikit-image"]
+provides-extras = ["cupy-cuda12x", "cupy-cuda13x", "scikit-image", "fftw"]
 
 [package.metadata.requires-dev]
 dev = [

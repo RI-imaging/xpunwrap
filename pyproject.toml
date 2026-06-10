@@ -23,6 +23,8 @@ dynamic = ["version"]
 cupy-cuda12x = ["cupy-cuda12x"]
 cupy-cuda13x = ["cupy-cuda13x"]
 scikit-image = ["scikit-image>=0.20.0"]
+# faster CPU Fourier transforms (numpy>=2 requires pyfftw>=0.15)
+FFTW = ["pyfftw>=0.15.0"]
 
 [dependency-groups]
 tests = [
@@ -50,8 +52,10 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["xpunwrap"]
 include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["xpunwrap*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

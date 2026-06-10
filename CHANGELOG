@@ -1,3 +1,10 @@
+0.2.0
+- feat: optional pyFFTW backend for faster CPU Fourier transforms
+  (install with `pip install xpunwrap[FFTW]`); selected automatically on the
+  numpy backend, with numpy FFT as fallback and cupy FFT on the GPU backend
+- fix: package `xpunwrap.algorithms` (and new `xpunwrap.fourier`) in built
+  wheels via setuptools package discovery
+
 0.1.0
 - docs: create docs directory for sphinx website
 - tests: create test suite
