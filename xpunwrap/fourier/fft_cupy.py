@@ -1,3 +1,5 @@
+from typing import Any
+
 from .base import FFTEngine
 
 try:
@@ -12,8 +14,8 @@ class FFTEngineCupy(FFTEngine):
     is_available = _cp is not None
     backend_expected = "cupy"
 
-    def fft2(self, data):
+    def fft2(self, data: Any) -> Any:
         return _cp.fft.fft2(data, axes=(-2, -1))
 
-    def ifft2(self, data):
+    def ifft2(self, data: Any) -> Any:
         return _cp.fft.ifft2(data, axes=(-2, -1))

@@ -24,7 +24,12 @@ class FFTEnginePyFFTW(FFTEngine):
         # (shape, dtype_str, direction) -> (in_arr, out_arr, fftw_obj)
         self._plans = {}
 
-    def _plan(self, shape, dtype, direction):
+    def _plan(
+            self,
+            shape: tuple[int, ...],
+            dtype: np.dtype,
+            direction: str,
+    ) -> tuple[np.ndarray, np.ndarray, pyfftw.FFTW]:
         """Retrieve or create a cached pyFFTW plan.
 
         Parameters
@@ -54,7 +59,7 @@ class FFTEnginePyFFTW(FFTEngine):
             self._plans[key] = plan
         return plan
 
-    def fft2(self, data):
+    def fft2(self, data: np.ndarray) -> np.ndarray:
         """Forward 2D FFT using a cached pyFFTW plan.
 
         Parameters
@@ -76,7 +81,7 @@ class FFTEnginePyFFTW(FFTEngine):
         # out_arr is reused by the cached plan, so return a copy.
         return out_arr.copy()
 
-    def ifft2(self, data):
+    def ifft2(self, data: np.ndarray) -> np.ndarray:
         """Inverse 2D FFT using a cached pyFFTW plan.
 
         Normalised by ``1 / (H * W)`` (NumPy convention).

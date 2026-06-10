@@ -4,6 +4,8 @@ NumPy is used for CPU-only. CuPy is used for GPU.
 """
 
 import importlib
+import types
+from typing import Any
 
 _default_backend = "numpy"
 _xp = importlib.import_module(_default_backend)
@@ -17,10 +19,10 @@ class NDArrayBackend:
     without any conditional imports in calling code.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._xp = _xp
 
-    def get(self):
+    def get(self) -> types.ModuleType:
         """Return the currently active backend module.
 
         Returns
@@ -30,7 +32,7 @@ class NDArrayBackend:
         """
         return self._xp
 
-    def set(self, backend_name: str = "numpy"):
+    def set(self, backend_name: str = "numpy") -> None:
         """Switch the active ndarray backend.
 
         Parameters
@@ -53,7 +55,7 @@ class NDArrayBackend:
                               f"installed. Either install it or use the "
                               f"default backend: 'numpy'.") from err
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         """Delegate attribute lookup to the active backend module.
 
         Parameters
@@ -68,7 +70,7 @@ class NDArrayBackend:
         """
         return getattr(self._xp, name)
 
-    def is_numpy(self):
+    def is_numpy(self) -> bool:
         """Return ``True`` if the active backend is NumPy (CPU).
 
         Returns
@@ -77,7 +79,7 @@ class NDArrayBackend:
         """
         return self._xp.__name__.startswith("numpy")
 
-    def is_cupy(self):
+    def is_cupy(self) -> bool:
         """Return ``True`` if the active backend is CuPy (GPU).
 
         Returns

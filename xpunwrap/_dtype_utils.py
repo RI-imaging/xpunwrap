@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import types
+from typing import Any
 
-def real_pi(xp, dtype):
+import numpy as np
+
+
+def real_pi(xp: types.ModuleType, dtype: Any) -> Any:
     """Return pi cast to the requested real dtype.
 
     Parameters
@@ -20,7 +25,7 @@ def real_pi(xp, dtype):
     return dt.type(xp.pi)
 
 
-def complex_dtype_for_real(xp, dtype):
+def complex_dtype_for_real(xp: types.ModuleType, dtype: Any) -> np.dtype:
     """Map a real dtype to the corresponding complex dtype.
 
     ``float16`` and ``float32`` map to ``complex64``; ``float64`` maps to

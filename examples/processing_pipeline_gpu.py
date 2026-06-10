@@ -1,4 +1,4 @@
-"""
+"""Processing Pipeline with GPU and Zarr
 Example processing pipeline for phase data on the GPU:
 - Load with Zarr in GPU
 - Field retrieval

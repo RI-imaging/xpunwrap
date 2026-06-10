@@ -27,7 +27,7 @@ PREFERRED_ENGINE = None
 _INSTANCES = {}
 
 
-def get_best_engine():
+def get_best_engine() -> type[FFTEngine]:
     """Return the FFT engine class for the active array backend.
 
     CuPy arrays require the CuPy FFT engine. On the NumPy backend, pyFFTW is
@@ -69,7 +69,7 @@ def get_best_engine():
     return FFTEngineNumpy
 
 
-def get_fft_engine():
+def get_fft_engine() -> FFTEngine:
     """Return a cached instance of the best FFT engine.
 
     Caching the instance keeps pyFFTW plans warm across repeated solver calls.

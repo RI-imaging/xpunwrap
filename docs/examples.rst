@@ -1,23 +1,11 @@
 Examples
 ========
 
-Field Retrieval & Unwrapping
-----------------------------
-
 .. fancy_include:: gpu_field_retr_phase_unwrapping.py
-
-Compare CPU vs GPU
-------------------
 
 .. fancy_include:: compare_cpu_gpu.py
 
-Poisson LS Algorithm Walkthrough
---------------------------------
-
 .. fancy_include:: walkthrough-ls_poisson_pg.py
-
-Unwrapping Simulated Data with Various Algorithms
--------------------------------------------------
 
 Download base simulation script:
 :download:`unwrapping_simulation.py <../examples/unwrapping_simulation.py>`
@@ -28,7 +16,7 @@ Download base simulation script:
 
 .. fancy_include:: unwrapping_simulation_comparison.py
 
-Processing Pipeline with GPU and Zarr
--------------------------------------
+.. _example_backend_engine:
+.. fancy_include:: using_backends_and_fft-engines.py
 
 .. fancy_include:: processing_pipeline_gpu.py

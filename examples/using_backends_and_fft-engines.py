@@ -1,4 +1,4 @@
-"""ndarray backend and FFT engine selection
+"""NDArray backend and FFT Engine Selection
 
 Demonstrates how to choose between the NumPy (CPU) and CuPy (GPU) array
 backends and how the FFT engine is selected automatically to match.

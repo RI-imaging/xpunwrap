@@ -1,4 +1,4 @@
-"""
+"""Poisson LS Algorithm Walkthrough
 Step-by-step walkthrough of the Least-squares Poisson Periodic Gradient
 algorithm.
 

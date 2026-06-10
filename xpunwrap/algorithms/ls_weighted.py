@@ -66,10 +66,10 @@ def algo_ls_weighted(
 
 
 def _weighted_poisson_solver(
-        f,
-        w,
-        n_iter=200,
-):
+        f: xp.ndarray,
+        w: xp.ndarray,
+        n_iter: int = 200,
+) -> xp.ndarray:
     """
     Solve div(w * grad(phi)) = f with Jacobi iterations.
 
@@ -112,7 +112,11 @@ def _weighted_poisson_solver(
     return phi
 
 
-def _weighted_divergence(gx, gy, w):
+def _weighted_divergence(
+        gx: xp.ndarray,
+        gy: xp.ndarray,
+        w: xp.ndarray,
+) -> xp.ndarray:
     """
     Compute the divergence of the weighted wrapped gradients.
 
@@ -137,7 +141,11 @@ def _weighted_divergence(gx, gy, w):
     return div_x + div_y
 
 
-def _phase_border_weights(gx, gy, thresh=1.5):
+def _phase_border_weights(
+        gx: xp.ndarray,
+        gy: xp.ndarray,
+        thresh: float = 1.5,
+) -> xp.ndarray:
     """
     Detect phase borders using gradient magnitude.
 

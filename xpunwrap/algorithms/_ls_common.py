@@ -9,7 +9,7 @@ from .._ndarray_backend import xp
 from ..fourier import get_fft_engine
 
 
-def wrap_phase(x):
+def wrap_phase(x: xp.ndarray) -> xp.ndarray:
     """
     Wrap phase to [-pi, pi).
 
@@ -29,7 +29,7 @@ def wrap_phase(x):
     return (x + pi) % two_pi - pi
 
 
-def divergence_stack(gx, gy):
+def divergence_stack(gx: xp.ndarray, gy: xp.ndarray) -> xp.ndarray:
     """
     Compute the periodic divergence of a wrapped-gradient stack.
 
@@ -51,7 +51,7 @@ def divergence_stack(gx, gy):
     )
 
 
-def poisson_solve_fft_stack(rhs):
+def poisson_solve_fft_stack(rhs: xp.ndarray) -> xp.ndarray:
     """
     Solve the periodic Poisson equation in the Fourier domain.
 

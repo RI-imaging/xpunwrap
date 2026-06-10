@@ -9,8 +9,8 @@ class FFTEngineNumpy(FFTEngine):
     is_available = True
     backend_expected = "numpy"
 
-    def fft2(self, data):
+    def fft2(self, data: np.ndarray) -> np.ndarray:
         return np.fft.fft2(data, axes=(-2, -1))
 
-    def ifft2(self, data):
+    def ifft2(self, data: np.ndarray) -> np.ndarray:
         return np.fft.ifft2(data, axes=(-2, -1))

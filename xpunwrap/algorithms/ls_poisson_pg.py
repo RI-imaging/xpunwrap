@@ -56,7 +56,9 @@ def algo_ls_poisson_pg(
     return phi
 
 
-def wrapped_gradients_stack(phi):
+def wrapped_gradients_stack(
+        phi: xp.ndarray,
+) -> tuple[xp.ndarray, xp.ndarray]:
     """
     Wrapped forward gradients for a stack of phases.
 
@@ -79,7 +81,10 @@ def wrapped_gradients_stack(phi):
     return gx, gy
 
 
-def enforce_periodic_gradients_stack(gx, gy):
+def enforce_periodic_gradients_stack(
+        gx: xp.ndarray,
+        gy: xp.ndarray,
+) -> tuple[xp.ndarray, xp.ndarray]:
     """
     Enforce periodic boundary conditions on wrapped gradients.
 
