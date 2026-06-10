@@ -6,12 +6,29 @@ def restore_mean_plane(
     phase_unwrapped: xp.ndarray,
     phase_wrapped: xp.ndarray,
 ) -> xp.ndarray:
-    """
-    Reintroduce the mean wrapped gradient plane removed by
-    Poisson-like solvers.
+    """Reintroduce the mean wrapped gradient plane removed by Poisson solvers.
 
-    Supports 2D (H, W) or stacked (N, H, W) inputs. The output matches the
-    shape of ``phase_unwrapped``.
+    Least-squares Poisson solvers discard the null-space component (a linear
+    ramp). This function estimates that ramp from the mean wrapped gradients of
+    the input and adds it back, anchored so that the value at pixel ``(0, 0)``
+    matches the original wrapped phase.
+
+    Parameters
+    ----------
+    phase_unwrapped : xp.ndarray
+        Solver output, shape (H, W) or (N, H, W).
+    phase_wrapped : xp.ndarray
+        Original wrapped phase, same shape as ``phase_unwrapped``.
+
+    Returns
+    -------
+    xp.ndarray
+        Phase with the mean gradient plane restored, same shape as input.
+
+    Raises
+    ------
+    ValueError
+        If ``phase_unwrapped`` is not 2-D or 3-D.
     """
     input_2d = False
     if phase_unwrapped.ndim == 2:

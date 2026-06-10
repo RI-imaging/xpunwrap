@@ -55,6 +55,28 @@ def _unwrap_single(
     arr: xp.ndarray,
     **kwargs: Any,
 ) -> xp.ndarray:
+    """Unwrap a single 2D phase image using scikit-image.
+
+    CuPy arrays are transferred to NumPy before processing and moved back to
+    the active backend on return.
+
+    Parameters
+    ----------
+    arr : xp.ndarray, shape (H, W)
+        Single wrapped phase slice, values in [-pi, pi).
+    **kwargs
+        Forwarded to ``skimage.restoration.unwrap_phase``.
+
+    Returns
+    -------
+    xp.ndarray
+        Unwrapped phase, same shape and backend as ``arr``.
+
+    Raises
+    ------
+    ImportError
+        If ``scikit-image`` is not installed.
+    """
     if xp.is_cupy():
         np_arr = xp.asnumpy(arr)
     else:

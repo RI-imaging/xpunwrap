@@ -6,6 +6,7 @@ These helpers are used by both ``ls_poisson`` and ``ls_poisson_pg``.
 
 from .._dtype_utils import complex_dtype_for_real, real_pi
 from .._ndarray_backend import xp
+from ..fourier import get_fft_engine
 
 
 def wrap_phase(x):
@@ -82,9 +83,10 @@ def poisson_solve_fft_stack(rhs):
 
     complex_dtype = complex_dtype_for_real(xp, dtype)
     complex_dt = xp.dtype(complex_dtype)
-    rhs_hat = xp.fft.fft2(rhs.astype(complex_dtype, copy=False), axes=(-2, -1))
+    fft = get_fft_engine()
+    rhs_hat = fft.fft2(rhs.astype(complex_dtype, copy=False))
     phi_hat = rhs_hat / denom
     phi_hat[:, 0, 0] = complex_dt.type(0)
 
-    out = xp.real(xp.fft.ifft2(phi_hat, axes=(-2, -1)))
+    out = xp.real(fft.ifft2(phi_hat))
     return out.astype(dtype, copy=False)
