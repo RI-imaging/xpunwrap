@@ -1,5 +1,16 @@
-"""
-Compare speed of CPU (skimage unwrap_phase) vs GPU (ls_poisson) on hologram_cell data.
+"""CPU vs GPU phase unwrapping speed comparison
+
+Compares four pipelines on hologram_cell data:
+
+- CPU  skimage    + NumPy   (qpretrieve NumPy FFT   + skimage unwrap)
+- CPU  skimage    + pyFFTW  (qpretrieve pyFFTW FFT  + skimage unwrap)
+- CPU  ls_poisson + pyFFTW  (qpretrieve pyFFTW FFT  + xpunwrap Poisson)
+- GPU  ls_poisson + CuPy    (full CuPy pipeline)
+
+Run::
+
+    python examples/compare_cpu_gpu.py
+
 """
 
 from __future__ import annotations
@@ -12,6 +23,7 @@ import numpy as np
 
 import qpretrieve
 import xpunwrap
+import xpunwrap.fourier as xp_fourier
 
 DATA_PATH = Path(__file__).parent.parent / "tests" / "data" / "hologram_cell.npz"
 OUTPUT_PNG = Path(__file__).parent / "compare_cpu_gpu.png"
@@ -34,36 +46,86 @@ def _stack_phase(arr: np.ndarray) -> np.ndarray:
     return np.repeat(arr[None, ...], repeats=STACK_DEPTH, axis=0)
 
 
-def time_cpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
+def _time_skimage_pipeline(
+        raw: dict[str, np.ndarray],
+        fft_interface,
+        repeats: int = 3,
+):
+    """Shared timing loop for skimage-based pipelines."""
     qpretrieve.set_ndarray_backend("numpy")
-    fft_interface = qpretrieve.fourier.FFTFilterPyFFTW
     try:
         algo = xpunwrap.algos_available()["algo_skimage_unwrap"]
     except Exception:
         return None
 
-    # do a warmup, important for PyFFTW
-    holo = qpretrieve.OffAxisHologram(raw["data"], fft_interface)
-    bg = qpretrieve.OffAxisHologram(raw["bg"], fft_interface)
-    holo.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
-    bg.process_like(holo)
-    phase_wrp = np.asarray(holo.phase - bg.phase, dtype=np.float32)
-    algo(phase_wrp)
+    def _run():
+        holo = qpretrieve.OffAxisHologram(raw["data"], fft_interface)
+        bg = qpretrieve.OffAxisHologram(raw["bg"], fft_interface)
+        holo.run_pipeline(
+            filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
+        bg.process_like(holo)
+        algo(np.asarray(holo.phase - bg.phase, dtype=np.float32))
 
+    _run()  # warmup (important for pyFFTW plan compilation)
     times = []
     for _ in range(repeats):
         start = time.perf_counter()
-        holo = qpretrieve.OffAxisHologram(raw["data"], fft_interface)
-        bg = qpretrieve.OffAxisHologram(raw["bg"], fft_interface)
-        holo.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
-        bg.process_like(holo)
-        phase_wrp = np.asarray(holo.phase - bg.phase, dtype=np.float32)
-        algo(phase_wrp)
+        _run()
         times.append((time.perf_counter() - start) * 1000.0)
     return float(np.mean(times)), float(np.std(times))
 
 
+def time_cpu_skimage_numpy(raw: dict[str, np.ndarray], repeats: int = 3):
+    """CPU pipeline: qpretrieve (NumPy FFT) + skimage unwrap."""
+    return _time_skimage_pipeline(
+        raw, qpretrieve.fourier.FFTFilterNumpy, repeats)
+
+
+def time_cpu_skimage_pyfftw(raw: dict[str, np.ndarray], repeats: int = 3):
+    """CPU pipeline: qpretrieve (pyFFTW) + skimage unwrap."""
+    return _time_skimage_pipeline(
+        raw, qpretrieve.fourier.FFTFilterPyFFTW, repeats)
+
+
+def time_cpu_ls_poisson_pyfftw(raw: dict[str, np.ndarray], repeats: int = 3):
+    """CPU pipeline: qpretrieve (pyFFTW) + xpunwrap ls_poisson (pyFFTW)."""
+    from xpunwrap.fourier import FFTEnginePyFFTW
+    if FFTEnginePyFFTW is None:
+        return None
+
+    qpretrieve.set_ndarray_backend("numpy")
+    xpunwrap.set_ndarray_backend("numpy")
+    fft_interface = qpretrieve.fourier.FFTFilterPyFFTW
+    xp_fourier.PREFERRED_ENGINE = "FFTEnginePyFFTW"
+    algo = xpunwrap.algos_available()["algo_ls_poisson"]
+
+    try:
+        # Warmup
+        holo = qpretrieve.OffAxisHologram(raw["data"], fft_interface)
+        bg = qpretrieve.OffAxisHologram(raw["bg"], fft_interface)
+        holo.run_pipeline(
+            filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
+        bg.process_like(holo)
+        algo(np.asarray(holo.phase - bg.phase, dtype=np.float32))
+
+        times = []
+        for _ in range(repeats):
+            start = time.perf_counter()
+            holo = qpretrieve.OffAxisHologram(raw["data"], fft_interface)
+            bg = qpretrieve.OffAxisHologram(raw["bg"], fft_interface)
+            holo.run_pipeline(
+                filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
+            bg.process_like(holo)
+            algo(np.asarray(holo.phase - bg.phase, dtype=np.float32))
+            times.append((time.perf_counter() - start) * 1000.0)
+    finally:
+        xp_fourier.PREFERRED_ENGINE = None
+
+    return float(np.mean(times)), float(np.std(times))
+
+
 def time_gpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
+    """GPU pipeline: qpretrieve (CuPy FFT) + xpunwrap ls_poisson (CuPy FFT)."""
     try:
         import cupy as cp  # noqa: F401
     except Exception:
@@ -79,19 +141,19 @@ def time_gpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
         if hasattr(xp, "cuda"):
             xp.cuda.Stream.null.synchronize()
 
-    times = []
-    # Warmup once
+    # Warmup
     _sync()
     holo_gpu = xp.asarray(raw["data"])
     bg_gpu = xp.asarray(raw["bg"])
     holo_obj = qpretrieve.OffAxisHologram(holo_gpu, fft_interface)
     bg_obj = qpretrieve.OffAxisHologram(bg_gpu, fft_interface)
-    holo_obj.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
+    holo_obj.run_pipeline(
+        filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
     bg_obj.process_like(holo_obj)
-    phase_wrp = xp.asarray(holo_obj.phase - bg_obj.phase, dtype=xp.float32)
-    algo(phase_wrp)
+    algo(xp.asarray(holo_obj.phase - bg_obj.phase, dtype=xp.float32))
     _sync()
 
+    times = []
     for _ in range(repeats):
         _sync()
         start = time.perf_counter()
@@ -99,10 +161,10 @@ def time_gpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
         bg_gpu = xp.asarray(raw["bg"])
         holo_obj = qpretrieve.OffAxisHologram(holo_gpu, fft_interface)
         bg_obj = qpretrieve.OffAxisHologram(bg_gpu, fft_interface)
-        holo_obj.run_pipeline(filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
+        holo_obj.run_pipeline(
+            filter_name="disk", filter_size=1 / 2, scale_to_filter=True)
         bg_obj.process_like(holo_obj)
-        phase_wrp = xp.asarray(holo_obj.phase - bg_obj.phase, dtype=xp.float32)
-        algo(phase_wrp)
+        algo(xp.asarray(holo_obj.phase - bg_obj.phase, dtype=xp.float32))
         _sync()
         times.append((time.perf_counter() - start) * 1000.0)
     return float(np.mean(times)), float(np.std(times))
@@ -111,50 +173,43 @@ def time_gpu_pipeline(raw: dict[str, np.ndarray], repeats: int = 3):
 def main():
     raw = _load_raw_numpy()
 
-    cpu = time_cpu_pipeline(raw)
-    gpu = time_gpu_pipeline(raw)
+    skimage_numpy = time_cpu_skimage_numpy(raw)
+    skimage_pyfftw = time_cpu_skimage_pyfftw(raw)
+    ls_pyfftw = time_cpu_ls_poisson_pyfftw(raw)
+    ls_cupy = time_gpu_pipeline(raw)
 
-    labels = []
-    means = []
-    stds = []
-    if cpu:
-        labels.append("CPU skimage")
-        means.append(cpu[0])
-        stds.append(cpu[1])
-    if gpu:
-        labels.append("GPU ls_poisson")
-        means.append(gpu[0])
-        stds.append(gpu[1])
+    # Wong (2011) / Nature Methods colorblind-safe palette
+    clr_blue, clr_green = "#56B4E9", "#009E73"
+    clr_orange, clr_purple = "#D55E00", "#CC79A7"
+    entries = [
+        ("skimage\n+ NumPy\n(CPU)", skimage_numpy, clr_blue),
+        ("skimage\n+ pyFFTW\n(CPU)", skimage_pyfftw, clr_green),
+        ("ls_poisson\n+ pyFFTW\n(CPU)", ls_pyfftw, clr_orange),
+        ("ls_poisson\n+ CuPy\n(GPU)", ls_cupy, clr_purple),
+    ]
+    entries = [(lbl, res, col) for lbl, res, col in entries if res is not None]
+
+    labels = [e[0] for e in entries]
+    means = [e[1][0] for e in entries]
+    stds = [e[1][1] for e in entries]
+    colors = [e[2] for e in entries]
 
     plt.style.use("dark_background")
-    fig, ax = plt.subplots(figsize=(6, 4), facecolor='#181C24')
+    fig, ax = plt.subplots(figsize=(6, 4), facecolor="#181C24")
     x = np.arange(len(labels))
-    ax.bar(
-        x,
-        means,
-        yerr=stds,
-        capsize=5,
-        color=["#4cc9f0", "#f72585"],
-        edgecolor="white",
-        error_kw={
-            "ecolor": "white",
-            "elinewidth": 1.5,
-            "capsize": 5,
-            "capthick": 1.5,
-        },
-    )
+    ax.bar(x, means, yerr=stds, color=colors, edgecolor="white",
+           error_kw={"ecolor": "white", "elinewidth": 1.5,
+                     "capsize": 5, "capthick": 1.5})
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=15, ha="right")
+    ax.set_xticklabels(labels, ha="center")
     ax.set_ylabel("Time (ms)")
-    ax.set_title("CPU (skimage) vs GPU (ls_poisson)")
+    ax.set_title("Phase unwrapping speed comparison")
     ax.grid(axis="y", linestyle="--", alpha=0.3)
-    ax.set_facecolor('#181C24')
+    ax.set_facecolor("#181C24")
 
-    for xi, mean in zip(x, means):
-        if mean is not None:
-            ax.text(xi, mean, f"{mean:.1f} ms", ha="center", va="bottom", fontsize=8)
-        else:
-            ax.text(xi, 0, "GPU missing", ha="center", va="bottom", fontsize=8, rotation=90)
+    for xi, mean, std in zip(x, means, stds):
+        ax.text(xi, mean + std, f"{mean:.1f} ms",
+                ha="center", va="bottom", fontsize=8)
 
     fig.tight_layout()
     fig.savefig(OUTPUT_PNG, dpi=200)
