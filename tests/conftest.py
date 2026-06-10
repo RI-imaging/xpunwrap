@@ -3,8 +3,25 @@ import pytest
 import qpretrieve
 
 import xpunwrap
+from xpunwrap import fourier
 
 data_path = pathlib.Path(__file__).parent / "data"
+
+
+@pytest.fixture
+def numpy_backend():
+    """Set the numpy ndarray backend and restore it after the test."""
+    xpunwrap.set_ndarray_backend("numpy")
+    yield
+    xpunwrap.set_ndarray_backend("numpy")
+
+
+@pytest.fixture
+def preferred_engine():
+    """Temporarily set ``fourier.PREFERRED_ENGINE`` and restore it."""
+    original = fourier.PREFERRED_ENGINE
+    yield lambda name: setattr(fourier, "PREFERRED_ENGINE", name)
+    fourier.PREFERRED_ENGINE = original
 
 
 @pytest.fixture(params=["cupy", "numpy"])
