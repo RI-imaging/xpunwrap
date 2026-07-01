@@ -22,6 +22,12 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.urls]
+Homepage = "https://github.com/RI-imaging/xpunwrap"
+Documentation = "https://xpunwrap.readthedocs.io"
+Repository = "https://github.com/RI-imaging/xpunwrap"
+Changelog = "https://github.com/RI-imaging/xpunwrap/blob/main/CHANGELOG"
+
 [project.optional-dependencies]
 # cupy has several installation options, depending on your CUDA Toolkit version
 cupy-cuda12x = ["cupy-cuda12x"]
