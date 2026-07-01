@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=80", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "xpunwrap"
 description = "Phase unwrapping algorithms which are CPU and GPU agnostic"
@@ -53,6 +57,10 @@ dev = [
 
 [tool.setuptools]
 include-package-data = true
+
+[tool.setuptools_scm]
+write_to = "xpunwrap/_version.py"
+version_scheme = "post-release"
 
 [tool.setuptools.packages.find]
 include = ["xpunwrap*"]

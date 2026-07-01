@@ -1,3 +1,5 @@
+0.1.1
+ - setup: correctly set the version control for build
 0.1.0
 - docs: create sphinx website
 - feat: optional pyFFTW backend for faster CPU Fourier transforms

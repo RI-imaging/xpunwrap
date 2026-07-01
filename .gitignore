@@ -225,5 +225,8 @@ docs/_build/
 docs/generated/
 temp_*.zip
 
+# versioning
+_version.py
+
 # ai
 README_ai.md
