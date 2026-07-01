@@ -67,8 +67,7 @@ with `xpunwrap`.
 
 ## Documentation and Citations
 
-There will soon be a Reference and API documentation website here
-(xpunwrap.readthedocs.io)
+Check out the Documentation and Examples here: https://xpunwrap.readthedocs.io/
 
 <!-- ## Citing this work -->
 

@@ -1,4 +1,5 @@
 0.1.0
+- docs: create sphinx website
 - feat: optional pyFFTW backend for faster CPU Fourier transforms
 - fix: package `xpunwrap.algorithms` in built wheels via setuptools
 - docs: create docs directory for sphinx website
