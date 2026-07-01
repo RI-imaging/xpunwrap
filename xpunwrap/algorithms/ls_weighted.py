@@ -31,13 +31,25 @@ def algo_ls_weighted(
     phase_unwrapped : xp.ndarray
         Unwrapped phase, same shape as input.
 
+    Notes
+    -----
+    The Jacobi solver uses periodic boundary conditions via circular
+    shifts (``xp.roll``): the left/right and top/bottom edges of the domain
+    are treated as connected. No zero-padding is applied. The border-weight
+    mask (controlled by ``border_thresh``) mitigates edge artifacts by
+    down-weighting high-gradient boundary regions, making this algorithm more
+    robust to non-periodic data than the pure FFT solvers. Convergence
+    requires ``n_iter`` to be large enough relative to the image size; the
+    default of 200 is conservative for typical holography image sizes.
+
     References
     ----------
-    - D. C. Ghiglia and L. A. Romero, "Robust two-dimensional weighted and
-      unweighted phase unwrapping that uses fast transforms and iterative
-      methods," J. Opt. Soc. Am. A, vol. 11, no. 1, pp. 107-117, 1994.
-    - D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
-      Theory, Algorithms, and Software," Wiley, 1998.
+    .. [1] D. C. Ghiglia and L. A. Romero, "Robust two-dimensional weighted and
+       unweighted phase unwrapping that uses fast transforms and iterative
+       methods," J. Opt. Soc. Am. A, vol. 11, no. 1, pp. 107-117, 1994.
+    .. [2] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
+       Theory, Algorithms, and Software," Wiley, 1998.
+
     """
     input_2d = False
     if phase_wrapped.ndim == 2:
@@ -79,11 +91,18 @@ def _weighted_poisson_solver(
         Right-hand side, shape (N, H, W).
     w : xp.ndarray
         Weights, shape (N, H, W).
+    n_iter : int
+        Number of Jacobi iterations.
 
     Returns
     -------
     xp.ndarray
         Unwrapped phase estimate, shape (N, H, W).
+
+    Notes
+    -----
+    All neighbour lookups use ``xp.roll``, which wraps at domain edges
+    (periodic boundary conditions).  No zero-padding is applied.
     """
     phi = xp.zeros_like(f)
 

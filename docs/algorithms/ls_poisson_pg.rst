@@ -13,7 +13,7 @@ Derivation
 1. **Input**: wrapped phase :math:`\phi_w` in :math:`[-\pi,\pi)`.
 2. **Wrapped forward gradients**:
 
-   .. math::
+   .. math::é
       g_x = \mathrm{wrap}(\phi_w(x+1,y) - \phi_w(x,y)), \quad
       g_y = \mathrm{wrap}(\phi_w(x,y+1) - \phi_w(x,y))
 
@@ -65,6 +65,17 @@ Derivation
 
 8. **Inverse FFT** returns the real-space unwrapped phase. If the input was
    2D, the leading singleton dimension is removed.
+
+.. note::
+
+   **Boundary conditions and padding.**
+   Like :doc:`ls_poisson`, this solver assumes a *periodic* domain and applies
+   no zero-padding before the FFT. The periodic-gradient enforcement (step 3)
+   reduces the gradient discontinuity at domain edges compared to the standard
+   method, but does not eliminate artifacts when the underlying phase is not
+   truly periodic. For strongly non-periodic data, consider cropping the
+   region of interest or using
+   :func:`~xpunwrap.algorithms.algo_ls_weighted`.
 
 .. _ls_poisson_pg_refs:
 

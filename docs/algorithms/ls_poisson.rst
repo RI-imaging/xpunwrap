@@ -64,6 +64,18 @@ Derivation
 8. **Inverse FFT** yields :math:`\phi` in real space. If the input was 2D,
    the leading singleton dimension is removed.
 
+.. note::
+
+   **Boundary conditions and padding.**
+   The FFT solve assumes the domain is *periodic*: the left/right and
+   top/bottom edges are treated as connected. No zero-padding is applied
+   before the FFT. If the wrapped phase is not periodic at the boundaries
+   (which is the common case for experimental data), the solver may produce
+   artifacts — ringing or slope errors — near the domain edges. To reduce
+   their impact, crop the region of interest away from the edges, or use
+   :func:`~xpunwrap.algorithms.algo_ls_weighted`, which can suppress
+   discontinuous boundary regions via its border-weight mask.
+
 .. _ls_poisson_refs:
 
 References

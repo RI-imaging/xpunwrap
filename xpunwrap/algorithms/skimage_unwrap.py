@@ -37,8 +37,14 @@ def algo_skimage_unwrap(
     Notes
     -----
     - Requires ``scikit-image`` to be installed in the active environment.
-    - Computation is performed on CPU; Cupy inputs are transferred to NumPy and
+    - Computation is performed on CPU; CuPy inputs are transferred to NumPy and
       converted back to the active backend on return.
+    - Unlike the FFT-based solvers in this package, scikit-image's
+      ``unwrap_phase`` uses a path-following (quality-guided) algorithm that
+      does not assume periodic boundary conditions and does not use FFTs.
+      Pass ``wrap_around=(True, True)`` via ``kwargs`` if your data
+      has periodic boundaries.
+
     """
     if phase_wrapped.ndim == 2:
         return _unwrap_single(phase_wrapped, **kwargs)

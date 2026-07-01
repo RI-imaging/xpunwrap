@@ -69,6 +69,18 @@ Derivation
    After a fixed number of iterations, :math:`\phi` is returned. If the input
    was 2D, the leading singleton dimension is removed.
 
+.. note::
+
+   **Boundary conditions and padding.**
+   The Jacobi stencil uses ``xp.roll`` for all neighbour lookups, which wraps
+   at domain edges (*periodic boundary conditions*). No zero-padding is
+   applied. The border-weight mask (step 4) mitigates edge artifacts by
+   setting weights to zero wherever the gradient magnitude exceeds
+   ``border_thresh``, effectively decoupling those pixels from the solve.
+   This makes the algorithm more robust to non-periodic data than the pure FFT
+   solvers, at the cost of Jacobi convergence speed (controlled by
+   ``n_iter``).
+
 .. _ls_weighted_refs:
 
 References

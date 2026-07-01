@@ -22,10 +22,22 @@ def algo_ls_poisson(
     phase_unwrapped : xp.ndarray
         Unwrapped phase, same shape as input.
 
+    Notes
+    -----
+    The FFT Poisson solver assumes periodic boundary conditions: the input
+    domain is treated as if its left/right and top/bottom edges connect. No
+    zero-padding is applied before the FFT. If the wrapped phase is not
+    periodic at the boundaries, the solver may produce artifacts (ringing or
+    slope errors) near the domain edges. For non-periodic data consider
+    cropping the region of interest away from the edges or using
+    :func:`algo_ls_weighted`, which can suppress discontinuous boundary regions
+    via its border-weight mask.
+
     References
     ----------
-    - D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
-      Theory, Algorithms, and Software," Wiley, 1998.
+    .. [1] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
+       Theory, Algorithms, and Software," Wiley, 1998.
+
     """
     input_2d = False
     if phase_wrapped.ndim == 2:

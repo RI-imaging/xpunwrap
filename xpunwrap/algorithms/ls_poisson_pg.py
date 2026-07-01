@@ -24,13 +24,20 @@ def algo_ls_poisson_pg(
 
     Notes
     -----
-    This implementation enforces periodic boundary conditions on the wrapped
-    gradients prior to solving the Poisson equation.
+    The FFT Poisson solver assumes periodic boundary conditions: the input
+    domain is treated as if its left/right and top/bottom edges connect. No
+    zero-padding is applied before the FFT. This algorithm explicitly enforces
+    periodicity on the wrapped gradients (via
+    :func:`enforce_periodic_gradients_stack`) before solving, which reduces
+    gradient discontinuities at domain edges compared to
+    :func:`algo_ls_poisson`. If the wrapped phase is not periodic at the
+    boundaries, artifacts near the edges may still occur.
 
     References
     ----------
-    - D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
-      Theory, Algorithms, and Software," Wiley, 1998.
+    .. [1] D. C. Ghiglia and M. D. Pritt, "Two-Dimensional Phase Unwrapping:
+       Theory, Algorithms, and Software," Wiley, 1998.
+
     """
     input_2d = False
     if phase_wrapped.ndim == 2:
@@ -75,6 +82,9 @@ def wrapped_gradients_stack(
     gx = wrap_phase(phi[:, :, 1:] - phi[:, :, :-1])
     gy = wrap_phase(phi[:, 1:, :] - phi[:, :-1, :])
 
+    # Pad with zeros to restore the full (N, H, W) shape lost by diff.
+    # The padded edge values are immediately overwritten with the correct
+    # periodic boundary values in enforce_periodic_gradients_stack.
     gx = xp.pad(gx, ((0, 0), (0, 0), (0, 1)))
     gy = xp.pad(gy, ((0, 0), (0, 1), (0, 0)))
 
