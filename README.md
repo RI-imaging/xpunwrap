@@ -28,8 +28,8 @@ The ``xp`` in xpUnwrap references several things:
  - the "G" in GPU and "C" in CPU.
  - the "Q" from QPI (Quantitative Phase Imaging) e.g., from the sister package [qpretrieve](https://github.com/RI-imaging/qpretrieve). 
 
-(installation)=
 ## Installation
+<!-- sphinx-after-installation-heading -->
 
 ```bash
 
