@@ -1,5 +1,6 @@
 0.1.2
- -  setup: add project urls for consumers
+ - docs: direct github repo link from docs
+ - setup: add project urls for consumers
 0.1.1
  - setup: correctly set the version control for build
 0.1.0

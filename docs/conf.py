@@ -29,3 +29,11 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 fancy_include_path = "../examples"
 
 html_theme = "sphinx_rtd_theme"
+
+html_context = {
+    "display_github": True,
+    "github_user": "RI-imaging",
+    "github_repo": "xpunwrap",
+    "github_version": "main",
+    "conf_py_path": "/docs/",
+}
