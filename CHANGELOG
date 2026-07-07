@@ -1,3 +1,5 @@
+0.1.3
+ - docs: make docs github link to repo home
 0.1.2
  - docs: direct github repo link from docs
  - setup: add project urls for consumers
