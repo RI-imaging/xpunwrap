@@ -10,6 +10,10 @@ sys.path.append(str(Path(__file__).resolve().parent / "extensions"))
 project = "xpunwrap"
 author = "xpunwrap contributors"
 
+rst_prolog = """
+:github_url: https://github.com/RI-imaging/xpunwrap
+"""
+
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
