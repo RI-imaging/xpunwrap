@@ -1520,7 +1520,7 @@ wheels = [
 
 [[package]]
 name = "xpunwrap"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "numpy" },
 ]

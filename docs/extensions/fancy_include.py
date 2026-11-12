@@ -49,17 +49,17 @@ class IncludeDirective(Directive):
             path = (conf_dir / path).resolve()
         full_path = path / self.arguments[0]
 
-        # Directory of the rst document containing the directive. Image and
-        # download paths below are given relative to this directory (no
-        # leading "/"), which docutils/Sphinx resolve the same way on every
-        # OS. A leading "/" instead means "relative to the source root",
-        # which is wrong here since `fancy_include_path` points *outside*
-        # the source root (e.g. "../examples") - and using an OS-absolute
-        # path directly only happened to "work" on Windows (where it
-        # doesn't start with "/" so never triggers that source-root
-        # resolution) while silently breaking on Linux build hosts like
-        # ReadTheDocs (where it does start with "/").
-        doc_dir = pathlib.Path(env.doc2path(env.docname)).parent
+        # `env.srcdir` is always an absolute path (unlike `env.doc2path`,
+        # whose return value/signature has changed across Sphinx versions
+        # and can be relative to srcdir - resolving a relative path against
+        # it then depends on the process cwd at directive-run time, which
+        # is not guaranteed to be the docs source directory, e.g. on
+        # ReadTheDocs' build hosts). Anchoring to `srcdir` and emitting a
+        # path with a leading "/" uses Sphinx's documented convention
+        # ("relative to the top source directory") explicitly, so
+        # resolution does not depend on cwd, OS, or docutils' per-document
+        # relative-path handling at all.
+        src_dir = pathlib.Path(env.srcdir)
 
         text = full_path.read_text(encoding="utf-8")
 
@@ -99,15 +99,21 @@ class IncludeDirective(Directive):
         else:
             image_path = ""
         if image_path:
-            image_rel = pathlib.PurePosixPath(
-                os.path.relpath(image_path, doc_dir))
-            rst.append(".. figure:: {}".format(image_rel.as_posix()))
+            # os.path.relpath() returns an OS-native-separated string
+            # (backslashes on Windows). RST treats a bare "\" as an escape
+            # character and strips it from directive arguments, so the
+            # separator must be normalised to "/" explicitly here rather
+            # than relying on PurePosixPath (which does not reinterpret
+            # literal "\" characters already baked into the string as
+            # separators).
+            image_rel = os.path.relpath(image_path, src_dir).replace(os.sep, "/")
+            rst.append(".. figure:: /{}".format(image_rel))
             rst.append("")
 
         # download file
-        full_rel = pathlib.PurePosixPath(os.path.relpath(full_path, doc_dir))
-        rst.append(":download:`{} <{}>`".format(
-            full_path.name, full_rel.as_posix()))
+        full_rel = os.path.relpath(full_path, src_dir).replace(os.sep, "/")
+        rst.append(":download:`{} </{}>`".format(
+            full_path.name, full_rel))
 
         # code
         rst.append("")
