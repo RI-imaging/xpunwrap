@@ -27,8 +27,9 @@ The directive
 will display the doc string formatted with the first line as a
 heading, a code block with line numbers, and the image file.
 """
-import pathlib
 import ast
+import os
+import pathlib
 
 from docutils.statemachine import ViewList
 from docutils.parsers.rst import Directive
@@ -47,6 +48,18 @@ class IncludeDirective(Directive):
         if not path.is_absolute():
             path = (conf_dir / path).resolve()
         full_path = path / self.arguments[0]
+
+        # Directory of the rst document containing the directive. Image and
+        # download paths below are given relative to this directory (no
+        # leading "/"), which docutils/Sphinx resolve the same way on every
+        # OS. A leading "/" instead means "relative to the source root",
+        # which is wrong here since `fancy_include_path` points *outside*
+        # the source root (e.g. "../examples") - and using an OS-absolute
+        # path directly only happened to "work" on Windows (where it
+        # doesn't start with "/" so never triggers that source-root
+        # resolution) while silently breaking on Linux build hosts like
+        # ReadTheDocs (where it does start with "/").
+        doc_dir = pathlib.Path(env.doc2path(env.docname)).parent
 
         text = full_path.read_text(encoding="utf-8")
 
@@ -86,12 +99,14 @@ class IncludeDirective(Directive):
         else:
             image_path = ""
         if image_path:
-            rst.append(".. figure:: {}".format(image_path.as_posix()))
+            image_rel = pathlib.PurePosixPath(os.path.relpath(image_path, doc_dir))
+            rst.append(".. figure:: {}".format(image_rel.as_posix()))
             rst.append("")
 
         # download file
+        full_rel = pathlib.PurePosixPath(os.path.relpath(full_path, doc_dir))
         rst.append(":download:`{} <{}>`".format(
-            full_path.name, full_path.as_posix()))
+            full_path.name, full_rel.as_posix()))
 
         # code
         rst.append("")

@@ -19,7 +19,7 @@ import numpy as np
 import xpunwrap
 import xpunwrap.fourier as fourier
 
-# 1. Dumm wrapped phase data (N=1, H=64, W=64)
+# 1. Dummy wrapped phase data (N=1, H=64, W=64)
 rng = np.random.default_rng(0)
 _tx = np.linspace(-3.0, 3.0, 64)
 _x, _y = np.meshgrid(_tx, _tx)
