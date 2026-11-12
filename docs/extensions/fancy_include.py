@@ -106,7 +106,8 @@ class IncludeDirective(Directive):
             # than relying on PurePosixPath (which does not reinterpret
             # literal "\" characters already baked into the string as
             # separators).
-            image_rel = os.path.relpath(image_path, src_dir).replace(os.sep, "/")
+            image_rel = os.path.relpath(
+                image_path, src_dir).replace(os.sep, "/")
             rst.append(".. figure:: /{}".format(image_rel))
             rst.append("")
 
