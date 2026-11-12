@@ -99,7 +99,8 @@ class IncludeDirective(Directive):
         else:
             image_path = ""
         if image_path:
-            image_rel = pathlib.PurePosixPath(os.path.relpath(image_path, doc_dir))
+            image_rel = pathlib.PurePosixPath(
+                os.path.relpath(image_path, doc_dir))
             rst.append(".. figure:: {}".format(image_rel.as_posix()))
             rst.append("")
 
